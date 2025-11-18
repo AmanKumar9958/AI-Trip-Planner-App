@@ -175,20 +175,33 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                                     {details.PlaceName || details.place_name || details.Activity || "Activity"}
                                 </Text>
                                 <Text className="text-gray-500 dark:text-gray-400 text-sm mb-2">
-                                    {details.Details || details.details || details.description}
+                                    {details.PlaceDetails || details.place_details || details.Details || details.details || details.description}
                                 </Text>
                                 <View className="flex-col">
-                                    <View className="flex-row items-center mb-1">
-                                        <Ionicons name="time-outline" size={16} color="gray" />
-                                        <Text className="text-gray-500 text-xs ml-2">
-                                            {details.Time || details.time || "Flexible"}
-                                        </Text>
-                                    </View>
+                                    
+                                    {(details.BestTimeToVisit || details.best_time_to_visit) && (
+                                        <View className="flex-row items-center mb-1">
+                                            <Ionicons name="time-outline" size={16} color="gray" />
+                                            <Text className="text-gray-500 text-xs ml-2">
+                                                Best Time: {details.BestTimeToVisit || details.best_time_to_visit}
+                                            </Text>
+                                        </View>
+                                    )}
+
                                     {(details.TicketPricing || details.ticket_pricing) && (
                                         <View className="flex-row items-center mb-1">
                                             <Ionicons name="ticket-outline" size={16} color="gray" />
                                             <Text className="text-gray-500 text-xs ml-2" numberOfLines={3}>
                                                 {details.TicketPricing || details.ticket_pricing}
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {(details.TravelTime || details.travel_time || details.Time || details.time) && (
+                                        <View className="flex-row items-center mb-1">
+                                            <Ionicons name="navigate-circle-outline" size={16} color="gray" />
+                                            <Text className="text-gray-500 text-xs ml-2">
+                                                {details.TravelTime || details.travel_time || details.Time || details.time}
                                             </Text>
                                         </View>
                                     )}
