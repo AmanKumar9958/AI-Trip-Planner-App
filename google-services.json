@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "837231796444",
+    "project_id": "ai-trip-genius",
+    "storage_bucket": "ai-trip-genius.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837231796444:android:d27609a3789f3f73ca1419",
+        "android_client_info": {
+          "package_name": "com.codewithaman.aitripplannerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoknF4xksG7cIdWDFvJlPD2eVpYvA_Wrc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
