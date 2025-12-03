@@ -6,7 +6,13 @@ const auth = () => {
     return (
         <View className="flex-1 bg-blue-100 items-center justify-start rounded-2xl overflow-hidden">
             {/* Gradient Header */}
-            <View className="w-full h-1/3 bg-gradient-to-b from-orange-300 to-orange-500 rounded-t-2xl" />
+            <View className="w-full h-1/3 bg-gradient-to-b from-orange-300 to-orange-500 rounded-t-2xl justify-center items-center">
+                <Image
+                    source={require("../assets/images/auth-image.png")}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                />
+            </View>
 
             {/* Content */}
             <View className="flex-1 w-full bg-white rounded-b-2xl items-center pt-8">
