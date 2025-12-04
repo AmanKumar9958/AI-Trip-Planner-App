@@ -1,3 +1,4 @@
+import { makeRedirectUri } from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signOut } from 'firebase/auth';
@@ -17,21 +18,27 @@ export const AuthProvider = ({ children }) => {
         iosClientId: IOS_CLIENT_ID,
         androidClientId: ANDROID_CLIENT_ID,
         webClientId: WEB_CLIENT_ID,
-        // The redirect URI must match what is in Google Cloud Console.
-        // If makeRedirectUri({ useProxy: true }) returns an exp:// URL, use the explicit proxy URL below.
-        // Format: https://auth.expo.io/@<your-expo-username>/AI-Trip-Planner-App
-        // Example: https://auth.expo.io/@amankumar9958/AI-Trip-Planner-App
-        redirectUri: 'https://auth.expo.io/@amanwebdev24/AI-Trip-Planner-App', 
+        // Request an ID token so we can sign in with Firebase using the id_token
+        responseType: 'id_token',
+        scopes: ['profile', 'email'],
     });
 
-    // console.log('Expo redirectUri:', makeRedirectUri({ useProxy: true }));
+    // console.log("Generated Redirect URI:", makeRedirectUri({ useProxy: true }));
 
 
     useEffect(() => {
         if (response?.type === 'success') {
-            const { id_token } = response.params;
-            const credential = GoogleAuthProvider.credential(id_token);
-            signInWithCredential(auth, credential);
+            // For the id_token flow the token is available under `response.params.id_token`.
+            // If a different flow is used (e.g. code) you'll need a server-side exchange.
+            const idToken = response.params?.id_token || response.params?.idToken || response.params?.access_token;
+            if (idToken) {
+                const credential = GoogleAuthProvider.credential(idToken);
+                signInWithCredential(auth, credential).catch(err => {
+                    console.error('Firebase signInWithCredential error:', err);
+                });
+            } else {
+                console.error('No id_token returned from Google auth response', response);
+            }
         }
     }, [response]);
 

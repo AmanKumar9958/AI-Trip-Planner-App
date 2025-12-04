@@ -12,7 +12,20 @@
           "package_name": "com.codewithaman.aitripplannerapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "837231796444-aliv2nfo6g07ddcbahjk7269cs86ihkh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codewithaman.aitripplannerapp",
+            "certificate_hash": "18c6ab8187bbf9b233684c610ee36dd827bd073b"
+          }
+        },
+        {
+          "client_id": "837231796444-ii8k89pp44gb8q5v4m04g0j2mk59qmbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDoknF4xksG7cIdWDFvJlPD2eVpYvA_Wrc"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "837231796444-ii8k89pp44gb8q5v4m04g0j2mk59qmbu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "837231796444-6r0i1epp7p6k4tg24dg5dua43orolfrd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codewithaman.aitripplannerapp"
+              }
+            }
+          ]
         }
       }
     }
