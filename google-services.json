@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:837231796444:android:d27609a3789f3f73ca1419",
+        "mobilesdk_app_id": "1:837231796444:android:deda29647db3e2daca1419",
         "android_client_info": {
-          "package_name": "com.codewithaman.aitripplannerapp"
+          "package_name": "com.codewithamandev.tripgenius"
         }
       },
       "oauth_client": [
         {
-          "client_id": "837231796444-aliv2nfo6g07ddcbahjk7269cs86ihkh.apps.googleusercontent.com",
+          "client_id": "837231796444-0ipeg1g3ttuvf2njdujacbr0a0eosu6r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.codewithaman.aitripplannerapp",
-            "certificate_hash": "18c6ab8187bbf9b233684c610ee36dd827bd073b"
+            "package_name": "com.codewithamandev.tripgenius",
+            "certificate_hash": "6a2a1ea27264bad742183798d15919ac44f81150"
           }
         },
         {
