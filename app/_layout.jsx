@@ -1,6 +1,7 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "../Context/AuthContext";
+import { ThemeProvider } from "../Context/ThemeContext";
 import "../global.css";
 
 const RootLayoutNav = () => {
@@ -21,10 +22,14 @@ const RootLayoutNav = () => {
   }, [user, loading, segments]);
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="auth" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <Stack screenOptions={{
+      headerShown: false,
+      animation: 'slide_from_right',
+      animationDuration: 200,
+    }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="auth" />
+      <Stack.Screen name="(tabs)" />
     </Stack>
   );
 }
@@ -32,7 +37,9 @@ const RootLayoutNav = () => {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <ThemeProvider>
+        <RootLayoutNav />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
