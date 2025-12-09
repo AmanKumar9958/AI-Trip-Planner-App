@@ -1,7 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'nativewind';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Appearance } from 'react-native';
+import { Appearance, LayoutAnimation, Platform, UIManager } from 'react-native';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export const ThemeContext = createContext();
 
@@ -30,6 +35,7 @@ export const ThemeProvider = ({ children }) => {
     }, [setColorScheme]);
 
     const updateTheme = async (newTheme) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         try {
             setTheme(newTheme);
             await AsyncStorage.setItem('user-theme', newTheme);

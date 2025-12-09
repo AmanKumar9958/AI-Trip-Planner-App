@@ -1,12 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useTheme } from '../../Context/ThemeContext';
 
 export default function TabLayout() {
+    const { theme } = useTheme();
+    
     return (
         <Tabs screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#f97316', // Orange-500
-        tabBarInactiveTintColor: 'gray',
+            headerShown: false,
+            tabBarActiveTintColor: '#f97316', // Orange-500
+            tabBarInactiveTintColor: theme === 'dark' ? '#9ca3af' : 'gray', // Gray-400 for dark mode
+            tabBarStyle: {
+                backgroundColor: theme === 'dark' ? '#000000' : '#ffffff',
+                borderTopColor: theme === 'dark' ? '#1f2937' : '#e5e7eb', // Gray-800 vs Gray-200
+            }
         }}>
         <Tabs.Screen
             name="home"

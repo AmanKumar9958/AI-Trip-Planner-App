@@ -6,12 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../Context/AuthContext';
 import { useTheme } from '../../Context/ThemeContext';
 import { db } from '../../Firebase/FirebaseConfig';
+import TripDetailsModal from '../../components/TripDetailsModal';
 
 export default function MyTrip() {
     const { user } = useAuth();
     const { theme, updateTheme } = useTheme();
     const [userTrips, setUserTrips] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedTrip, setSelectedTrip] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -44,8 +47,8 @@ export default function MyTrip() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-black">
-            <View className="px-5 pt-5 flex-1">
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+            <View className="px-5 pt-6 flex-1">
                 <View className="flex-row justify-between items-center mb-6">
                     <Text className="text-3xl font-bold text-black dark:text-white">My Trips</Text>
                     <View className="flex-row items-center gap-8">
@@ -70,7 +73,13 @@ export default function MyTrip() {
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
-                            <View className="mb-6 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800">
+                            <TouchableOpacity 
+                                onPress={() => {
+                                    setSelectedTrip(item);
+                                    setModalVisible(true);
+                                }}
+                                className="mb-6 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800"
+                            >
                                 <Text className="text-lg font-bold text-black dark:text-white">
                                     {item.userSelection?.Location || "Trip Destination"}
                                 </Text>
@@ -79,11 +88,17 @@ export default function MyTrip() {
                                     {item.userSelection?.budget ? ` • ${item.userSelection.budget} Budget` : ''}
                                     {item.userSelection?.TravelingWith ? ` • ${item.userSelection.TravelingWith}` : ''}
                                 </Text>
-                            </View>
+                            </TouchableOpacity>
                         )}
                     />
                 )}
             </View>
+            
+            <TripDetailsModal 
+                trip={selectedTrip}
+                isVisible={modalVisible}
+                onClose={() => setModalVisible(false)}
+            />
         </SafeAreaView>
     );
 }

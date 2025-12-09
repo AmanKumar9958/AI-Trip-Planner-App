@@ -1,13 +1,18 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 import { AuthProvider, useAuth } from "../Context/AuthContext";
 import { ThemeProvider } from "../Context/ThemeContext";
+import CustomSplashScreen from "../components/CustomSplashScreen";
 import "../global.css";
 
 const RootLayoutNav = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const [videoFinished, setVideoFinished] = useState(false);
+
+  const isAppReady = !loading && videoFinished;
 
   useEffect(() => {
     if (loading) return;
@@ -22,15 +27,21 @@ const RootLayoutNav = () => {
   }, [user, loading, segments]);
 
   return (
-    <Stack screenOptions={{
-      headerShown: false,
-      animation: 'slide_from_right',
-      animationDuration: 200,
-    }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="auth" />
-      <Stack.Screen name="(tabs)" />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        animationDuration: 200,
+      }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      
+      {!isAppReady && (
+        <CustomSplashScreen onFinish={() => setVideoFinished(true)} />
+      )}
+    </View>
   );
 }
 

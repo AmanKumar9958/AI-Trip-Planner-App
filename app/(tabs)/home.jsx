@@ -53,9 +53,9 @@ const Home = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-black">
-            <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-            <ScrollView className="flex-1 px-5 pt-4" showsVerticalScrollIndicator={false}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+            <StatusBar style={theme === 'dark' ? 'light' : 'dark'} animated={true} />
+            <ScrollView className="flex-1 px-5 pt-7" showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View className="flex-row justify-between items-center mb-6">
                     <View className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
@@ -65,7 +65,7 @@ const Home = () => {
                         />
                     </View>
                     <TouchableOpacity onPress={toggleTheme}>
-                        <Ionicons name={theme === 'dark' ? "sunny" : "moon-outline"} size={28} color={theme === 'dark' ? "white" : "black"} />
+                        <Ionicons name={theme === 'dark' ? "sunny" : "moon"} size={24} color={theme === 'dark' ? "white" : "black"} />
                     </TouchableOpacity>
                 </View>
 
@@ -75,7 +75,7 @@ const Home = () => {
                 </Text>
 
                 {/* Create New Trip Button */}
-                <TouchableOpacity className="bg-orange-500 rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm">
+                <TouchableOpacity className="bg-orange-500 rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm" onPress={() => router.push('/(tabs)/explore')}>
                     <Ionicons name="add" size={24} color="white" style={{ marginRight: 8 }} />
                     <Text className="text-white text-xl font-bold" numberOfLines={1}>Create New Trip</Text>
                 </TouchableOpacity>
