@@ -2,12 +2,13 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { AuthProvider, useAuth } from "../Context/AuthContext";
-import { ThemeProvider } from "../Context/ThemeContext";
+import { ThemeProvider, useTheme } from "../Context/ThemeContext";
 import CustomSplashScreen from "../components/CustomSplashScreen";
 import "../global.css";
 
 const RootLayoutNav = () => {
   const { user, loading } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
   const segments = useSegments();
   const [videoFinished, setVideoFinished] = useState(false);
@@ -22,12 +23,12 @@ const RootLayoutNav = () => {
     if (user && !inTabsGroup) {
       router.replace('/(tabs)/home');
     } else if (!user && inTabsGroup) {
-      router.replace('/index');
+      router.replace('/');
     }
   }, [user, loading, segments]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
       <Stack screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBar } from '../../Context/TabBarContext';
 import { useTheme } from '../../Context/ThemeContext';
+import PageTransition from '../../components/PageTransition';
 
 const BudgetOptions = [
     { id: 'Cheap', title: 'Low', icon: '💵', desc: 'Stay conscious of costs' },
@@ -19,13 +21,62 @@ const TravelerOptions = [
 
 export default function Explore() {
     const { theme, updateTheme } = useTheme();
+    const { setIsTabBarVisible } = useTabBar();
+    const lastContentOffset = useRef(0);
+
+    const onScroll = (event) => {
+        const currentOffset = event.nativeEvent.contentOffset.y;
+        if (currentOffset > lastContentOffset.current && currentOffset > 20) {
+            setIsTabBarVisible(false);
+        } else if (currentOffset < lastContentOffset.current) {
+            setIsTabBarVisible(true);
+        }
+        lastContentOffset.current = currentOffset;
+    };
+
     const [destination, setDestination] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [duration, setDuration] = useState(7);
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [selectedTraveler, setSelectedTraveler] = useState(null);
+    
+    const timerRef = useRef(null);
+    const API_KEY = process.env.EXPO_PUBLIC_PLACE_API;
 
     const toggleTheme = () => {
         updateTheme(theme === 'dark' ? 'light' : 'dark');
+    };
+
+    const fetchSuggestions = async (q) => {
+        const query = q.trim();
+        if (!query || query.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+        try {
+            const url = `https://api.locationiq.com/v1/autocomplete?key=${API_KEY}&q=${encodeURIComponent(query)}&limit=5&format=json`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            setSuggestions(data);
+        } catch (error) {
+            console.error("Error fetching location data:", error);
+            setSuggestions([]);
+        }
+    };
+
+    const handleInputChange = (text) => {
+        setDestination(text);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => fetchSuggestions(text), 500);
+    };
+
+    const handleSelectLocation = (location) => {
+        const locationName = location.display_name || location.name || "Unknown Location";
+        setDestination(locationName);
+        setSelectedLocation(location);
+        setSuggestions([]);
     };
 
     const handleDurationChange = (value) => {
@@ -47,8 +98,15 @@ export default function Explore() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
-            <ScrollView className="flex-1 px-5 pt-8" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        <PageTransition>
+            <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+                <ScrollView 
+                    className="flex-1 px-5 pt-8" 
+                    showsVerticalScrollIndicator={false} 
+                    contentContainerStyle={{ paddingBottom: 80 }}
+                    onScroll={onScroll}
+                    scrollEventThrottle={16}
+                >
                 {/* Header */}
                 <View className="flex-row justify-between items-center mb-8">
                     <Text className="text-3xl font-bold text-black dark:text-white">Explore</Text>
@@ -58,18 +116,51 @@ export default function Explore() {
                 </View>
 
                 {/* Destination */}
-                <View className="mb-8">
+                <View className="mb-8 z-50">
                     <Text className="text-xl font-bold text-black dark:text-white mb-3">Destination</Text>
-                    <View className="flex-row items-center bg-gray-100 dark:bg-gray-900 rounded-2xl p-2 border border-gray-200 dark:border-gray-800">
+                    <View className="flex-row items-center bg-gray-100 dark:bg-gray-900 rounded-2xl p-2 border border-gray-200 dark:border-gray-800 relative">
                         <Ionicons name="search" size={24} color="gray" style={{ marginRight: 10 }} />
                         <TextInput
                             placeholder="Search Destination (e.g., Paris, Tokyo)..."
                             placeholderTextColor="gray"
                             className="flex-1 text-black dark:text-white text-base"
                             value={destination}
-                            onChangeText={setDestination}
+                            onChangeText={handleInputChange}
                         />
+                        {destination.length > 0 && (
+                            <TouchableOpacity onPress={() => {
+                                setDestination('');
+                                setSuggestions([]);
+                                setSelectedLocation(null);
+                            }}>
+                                <Ionicons name="close-circle" size={24} color="gray" />
+                            </TouchableOpacity>
+                        )}
                     </View>
+                    
+                    {suggestions.length > 0 && (
+                        <View className="absolute top-20 left-0 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg z-50 max-h-60 overflow-hidden">
+                            {suggestions.map((item, index) => (
+                                <TouchableOpacity 
+                                    key={`${item.place_id}-${index}`}
+                                    onPress={() => handleSelectLocation(item)}
+                                    className="p-3 border-b border-gray-100 dark:border-gray-800 active:bg-gray-100 dark:active:bg-gray-800"
+                                >
+                                    <Text className="text-black dark:text-white">{item.display_name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
+
+                    {selectedLocation && (
+                        <View className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                            <Text className="font-bold text-orange-600 dark:text-orange-400 mb-1">Selected Location:</Text>
+                            <Text className="text-black dark:text-white font-medium">{selectedLocation.display_name}</Text>
+                            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Lat: {selectedLocation.lat}, Lon: {selectedLocation.lon}
+                            </Text>
+                        </View>
+                    )}
                 </View>
                 {/* Duration */}
                 <View className="mb-8">
@@ -139,20 +230,20 @@ export default function Explore() {
                         ))}
                     </View>
                 </View>
+                {/* Generate Button */}
+                <View className="absolute bottom-20 left-5 right-5 mb-10">
+                    <TouchableOpacity 
+                        onPress={onGenerateTrip}
+                        className="bg-orange-500 rounded-full py-4 items-center shadow-lg"
+                    >
+                        <View className="flex-row items-center">
+                            <Text className="text-white text-xl font-bold mr-2">Generate Trip</Text>
+                            <Ionicons name="sparkles" size={20} color="white" />
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
-
-            {/* Generate Button */}
-            <View className="absolute bottom-5 left-5 right-5">
-                <TouchableOpacity 
-                    onPress={onGenerateTrip}
-                    className="bg-orange-500 rounded-full py-4 items-center shadow-lg"
-                >
-                    <View className="flex-row items-center">
-                        <Text className="text-white text-xl font-bold mr-2">Generate Trip</Text>
-                        <Ionicons name="sparkles" size={20} color="white" />
-                    </View>
-                </TouchableOpacity>
-            </View>
         </SafeAreaView>
+        </PageTransition>
     );
 }

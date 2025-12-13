@@ -1,16 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../Context/AuthContext';
+import { useTabBar } from '../../Context/TabBarContext';
 import { useTheme } from '../../Context/ThemeContext';
 import { db } from '../../Firebase/FirebaseConfig';
+import PageTransition from '../../components/PageTransition';
 import TripDetailsModal from '../../components/TripDetailsModal';
 
 export default function MyTrip() {
     const { user } = useAuth();
     const { theme, updateTheme } = useTheme();
+    const { setIsTabBarVisible } = useTabBar();
+    const lastContentOffset = useRef(0);
+
+    const onScroll = (event) => {
+        const currentOffset = event.nativeEvent.contentOffset.y;
+        if (currentOffset > lastContentOffset.current && currentOffset > 20) {
+            setIsTabBarVisible(false);
+        } else if (currentOffset < lastContentOffset.current) {
+            setIsTabBarVisible(true);
+        }
+        lastContentOffset.current = currentOffset;
+    };
+
     const [userTrips, setUserTrips] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedTrip, setSelectedTrip] = useState(null);
@@ -47,9 +62,10 @@ export default function MyTrip() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
-            <View className="px-5 pt-6 flex-1">
-                <View className="flex-row justify-between items-center mb-6">
+        <PageTransition>
+            <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+                <View className="px-5 pt-6 flex-1">
+                    <View className="flex-row justify-between items-center mb-6">
                     <Text className="text-3xl font-bold text-black dark:text-white">My Trips</Text>
                     <View className="flex-row items-center gap-8">
                         <TouchableOpacity onPress={toggleTheme}>
@@ -72,6 +88,9 @@ export default function MyTrip() {
                         data={userTrips}
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item) => item.id}
+                        onScroll={onScroll}
+                        scrollEventThrottle={16}
+                        contentContainerStyle={{ paddingBottom: 80 }}
                         renderItem={({ item }) => (
                             <TouchableOpacity 
                                 onPress={() => {
@@ -100,5 +119,6 @@ export default function MyTrip() {
                 onClose={() => setModalVisible(false)}
             />
         </SafeAreaView>
+        </PageTransition>
     );
 }
