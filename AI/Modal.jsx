@@ -1,30 +1,35 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import logger from "../lib/logger";
 
-const apiKey = import.meta.env.VITE_GEMINI_API;
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+
+if (!apiKey) {
+    console.error("Error: EXPO_PUBLIC_GEMINI_API_KEY is not set in the environment variables.");
+}
+console.log("Current API Key:", process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Allow overriding model via env; default to a broadly supported model on v1beta
 // If env not set, fall back to gemini-1.0-pro which is widely available.
-const requestedModel = (import.meta.env.VITE_GEMINI_MODEL || "").trim();
+const requestedModel = (process.env.EXPO_PUBLIC_GEMINI_MODEL || "").trim();
 const aliasMap = {
-    // Map deprecated or account-inaccessible aliases to broadly supported ones
-    "gemini-1.5-flash": "gemini-1.5-pro",
-    "gemini-1.5-flash-latest": "gemini-1.5-pro-latest",
+    "gemini-1.5-flash": "gemini-2.5-flash", 
+    "gemini-1.0-pro": "gemini-2.5-flash"
 };
-let modelId = requestedModel || "gemini-1.0-pro";
+let modelId = requestedModel || "gemini-2.5-flash";
 if (aliasMap[modelId]) {
     logger.warn(`[AI] Mapping requested model '${modelId}' to '${aliasMap[modelId]}' for compatibility.`);
     modelId = aliasMap[modelId];
 }
 if (!requestedModel) {
-    logger.warn(`[AI] Using default model '${modelId}'. Set VITE_GEMINI_MODEL in .env to change.`);
+    logger.warn(`[AI] Using default model '${modelId}'. Set EXPO_PUBLIC_GEMINI_MODEL in .env to change.`);
 }
 logger.info(`[AI] Generative model in use: ${modelId}`);
 const model = genAI.getGenerativeModel({ model: modelId });
 
 // Helper: try generating with fallback models to avoid 404s on specific accounts/regions
-const candidatesBase = [modelId, "gemini-1.5-pro", "gemini-1.0-pro"];
+const candidatesBase = [modelId, "gemini-2.5-flash", "gemini-2.0-flash"];
 const candidates = Array.from(new Set(candidatesBase));
 
 function is404Like(err) {
@@ -93,7 +98,7 @@ export async function generateAIResponse(prompt, config = {}) {
 }
 
 async function generateViaRestV1(modelName, prompt, genCfg) {
-    const url = `https://generativelanguage.googleapis.com/v1/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(apiKey)}`;
     // Strip responseMimeType which REST v1 may reject from generationConfig
     const { responseMimeType: _omitResponseMimeType, ...restGenCfg } = genCfg || {};
     const body = {

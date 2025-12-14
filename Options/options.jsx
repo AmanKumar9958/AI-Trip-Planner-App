@@ -1,22 +1,15 @@
-import { GiMoneyStack } from "react-icons/gi";
-import { FaGlassCheers } from "react-icons/fa";
-import { IoIosAirplane } from "react-icons/io";
-import { FaHouseChimney } from "react-icons/fa6";
-import { GiThreeFriends } from "react-icons/gi";
-
-
 export const SelectBudget = [
-    { icon: <GiMoneyStack size={30} />, budget: "Low", amount: "₹3,000 - ₹5,000" },
-    { icon: <GiMoneyStack size={30} />, budget: "Medium", amount: "₹5,000 - ₹10,000" },
-    { icon: <GiMoneyStack size={30} />, budget: "High", amount: "₹10,000 - ₹15,000" }
+    { iconName: "money-bill-wave", iconFamily: "FontAwesome5", budget: "Low", amount: "₹3,000 - ₹5,000" },
+    { iconName: "wallet", iconFamily: "FontAwesome5", budget: "Medium", amount: "₹5,000 - ₹10,000" },
+    { iconName: "sack-dollar", iconFamily: "FontAwesome5", budget: "High", amount: "₹10,000 - ₹15,000" }
 ];
 
 
 export const SelectMembers = [
-    { icon: <IoIosAirplane size={30} />, people: "Just Me", },
-    { icon: <FaGlassCheers size={30} />, people: "A Couple", },
-    { icon: <FaHouseChimney size={30} />, people: "Family", },
-    { icon: <GiThreeFriends size={30} />, people: "Friends", }
+    { iconName: "airplane", iconFamily: "Ionicons", people: "Just Me", },
+    { iconName: "glass-cheers", iconFamily: "FontAwesome5", people: "A Couple", },
+    { iconName: "home", iconFamily: "FontAwesome5", people: "Family", },
+    { iconName: "user-friends", iconFamily: "FontAwesome5", people: "Friends", }
 ];
 
 export const AI_PROMPT = `

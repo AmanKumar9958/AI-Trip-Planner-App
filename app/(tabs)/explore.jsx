@@ -1,27 +1,22 @@
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { doc, setDoc } from 'firebase/firestore';
 import { useRef, useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { chatSession } from '../../AI/Modal';
+import PageTransition from '../../components/PageTransition';
+import { useAuth } from '../../Context/AuthContext';
 import { useTabBar } from '../../Context/TabBarContext';
 import { useTheme } from '../../Context/ThemeContext';
-import PageTransition from '../../components/PageTransition';
-
-const BudgetOptions = [
-    { id: 'Cheap', title: 'Low', icon: '💵', desc: 'Stay conscious of costs' },
-    { id: 'Moderate', title: 'Medium', icon: '💰', desc: 'Keep cost on the average' },
-    { id: 'Luxury', title: 'High', icon: '💎', desc: "Don't worry about cost" },
-];
-
-const TravelerOptions = [
-    { id: 'Just Me', title: 'Solo', icon: '✈️', desc: 'A sole traveler in exploration' },
-    { id: 'Couple', title: 'Couple', icon: '🥂', desc: 'Two travelers in tandem' },
-    { id: 'Family', title: 'Family', icon: '🏡', desc: 'A group of fun loving adv.' },
-    { id: 'Friends', title: 'Friends', icon: '⛵', desc: 'A bunch of thrill-seekes' },
-];
+import { db } from '../../Firebase/FirebaseConfig';
+import { AI_PROMPT, SelectBudget, SelectMembers } from '../../Options/options';
 
 export default function Explore() {
     const { theme, updateTheme } = useTheme();
     const { setIsTabBarVisible } = useTabBar();
+    const { user } = useAuth();
+    const router = useRouter();
     const lastContentOffset = useRef(0);
 
     const onScroll = (event) => {
@@ -37,9 +32,10 @@ export default function Explore() {
     const [destination, setDestination] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
-    const [duration, setDuration] = useState(7);
+    const [duration, setDuration] = useState(5);
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [selectedTraveler, setSelectedTraveler] = useState(null);
+    const [loading, setLoading] = useState(false);
     
     const timerRef = useRef(null);
     const API_KEY = process.env.EXPO_PUBLIC_PLACE_API;
@@ -85,16 +81,60 @@ export default function Explore() {
         }
     };
 
-    const onGenerateTrip = () => {
+    const onGenerateTrip = async () => {
         if (!destination || !selectedBudget || !selectedTraveler) {
             Alert.alert('Missing Information', 'Please fill all the fields to generate your trip plan.', [
                 { text: 'OK' }
             ]);
             return;
         }
-        
-        // TODO: Proceed with trip generation
-        console.log("Generating trip with:", { destination, duration, selectedBudget, selectedTraveler });
+
+        setLoading(true);
+
+        try {
+            const finalPrompt = AI_PROMPT
+                .replace('{location}', destination)
+                .replace('{totalDays}', duration)
+                .replace('{traveler}', selectedTraveler.people)
+                .replace('{budget}', selectedBudget.budget);
+
+            console.log("Sending Prompt:", finalPrompt);
+
+            const result = await chatSession.sendMessage(finalPrompt);
+            const responseText = result.response.text();
+            console.log("AI Response:", responseText);
+            
+            const tripData = JSON.parse(responseText);
+
+            // Save to Firebase
+            const docId = Date.now().toString();
+            await setDoc(doc(db, "AI Trips", docId), {
+                userSelection: {
+                    Location: destination,
+                    TotalDays: duration,
+                    budget: selectedBudget.budget,
+                    TravelingWith: selectedTraveler.people
+                },
+                tripData: tripData,
+                userEmailID: user?.email,
+                id: docId
+            });
+
+            setLoading(false);
+            router.push('/(tabs)/mytrip');
+
+        } catch (error) {
+            console.error("Trip Generation Error:", error);
+            Alert.alert("Error", "Failed to generate trip. Please try again.");
+            setLoading(false);
+        }
+    };
+
+    const renderIcon = (iconName, iconFamily, size = 24, color = "black") => {
+        if (iconFamily === 'FontAwesome5') {
+            return <FontAwesome5 name={iconName} size={size} color={color} solid />;
+        }
+        return <Ionicons name={iconName} size={size} color={color} />;
     };
 
     return (
@@ -189,20 +229,22 @@ export default function Explore() {
                 <View className="mb-8">
                     <Text className="text-xl font-bold text-black dark:text-white mb-3">What is your budget?</Text>
                     <View className="flex-row justify-between">
-                        {BudgetOptions.map((option) => (
+                        {SelectBudget.map((option, index) => (
                             <TouchableOpacity
-                                key={option.id}
-                                onPress={() => setSelectedBudget(option.id)}
+                                key={index}
+                                onPress={() => setSelectedBudget(option)}
                                 className={`w-[31%] p-4 rounded-2xl border items-center justify-center ${
-                                    selectedBudget === option.id 
+                                    selectedBudget?.budget === option.budget 
                                     ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' 
                                     : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
                                 }`}
                             >
-                                <Text className="text-3xl mb-2">{option.icon}</Text>
+                                <View className="mb-2">
+                                    {renderIcon(option.iconName, option.iconFamily, 30, selectedBudget?.budget === option.budget ? '#ea580c' : (theme === 'dark' ? 'white' : 'black'))}
+                                </View>
                                 <Text className={`font-bold text-center ${
-                                    selectedBudget === option.id ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
-                                }`}>{option.title}</Text>
+                                    selectedBudget?.budget === option.budget ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
+                                }`}>{option.budget}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -212,20 +254,22 @@ export default function Explore() {
                 <View className="mb-24">
                     <Text className="text-xl font-bold text-black dark:text-white mb-3">Who are you traveling with?</Text>
                     <View className="flex-row flex-wrap justify-between">
-                        {TravelerOptions.map((option) => (
+                        {SelectMembers.map((option, index) => (
                             <TouchableOpacity
-                                key={option.id}
-                                onPress={() => setSelectedTraveler(option.id)}
+                                key={index}
+                                onPress={() => setSelectedTraveler(option)}
                                 className={`w-[48%] p-4 mb-4 rounded-2xl border items-center justify-center ${
-                                    selectedTraveler === option.id 
+                                    selectedTraveler?.people === option.people 
                                     ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' 
                                     : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
                                 }`}
                             >
-                                <Text className="text-4xl mb-2">{option.icon}</Text>
+                                <View className="mb-2">
+                                    {renderIcon(option.iconName, option.iconFamily, 30, selectedTraveler?.people === option.people ? '#ea580c' : (theme === 'dark' ? 'white' : 'black'))}
+                                </View>
                                 <Text className={`font-bold text-lg ${
-                                    selectedTraveler === option.id ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
-                                }`}>{option.title}</Text>
+                                    selectedTraveler?.people === option.people ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
+                                }`}>{option.people}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
