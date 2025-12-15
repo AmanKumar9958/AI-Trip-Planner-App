@@ -1,7 +1,7 @@
 export const SelectBudget = [
-    { iconName: "money-bill-wave", iconFamily: "FontAwesome5", budget: "Low", amount: "₹3,000 - ₹5,000" },
-    { iconName: "wallet", iconFamily: "FontAwesome5", budget: "Medium", amount: "₹5,000 - ₹10,000" },
-    { iconName: "sack-dollar", iconFamily: "FontAwesome5", budget: "High", amount: "₹10,000 - ₹15,000" }
+    { iconName: "money-bill-wave", iconFamily: "FontAwesome5", budget: "Low", amount: "Under ₹5,000" },
+    { iconName: "wallet", iconFamily: "FontAwesome5", budget: "Medium", amount: "Under ₹10,000" },
+    { iconName: "sack-dollar", iconFamily: "FontAwesome5", budget: "High", amount: "More than ₹10,000" }
 ];
 
 
@@ -50,5 +50,9 @@ Rules:
 - Keep all key names exactly as shown.
 - Provide at least 3 entries in HotelOptions, with realistic values.
 - Do not include any text outside the JSON object.
+- Budget constraints based on selected category:
+    - If budget is "Low": ensure total entire trip recommendations fit under ₹7,000.
+    - If budget is "Medium": ensure total entire trip recommendations fit under ₹15,000.
+    - If budget is "High": allow spending more than ₹25,000 for entire trip.
 `;
 

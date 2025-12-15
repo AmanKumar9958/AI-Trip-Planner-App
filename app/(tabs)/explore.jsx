@@ -121,6 +121,11 @@ export default function Explore() {
             });
 
             setLoading(false);
+            setSelectedLocation(null);
+            setDestination('');
+            setDuration(5);
+            setSelectedBudget(null);
+            setSelectedTraveler(null);
             router.push('/(tabs)/mytrip');
 
         } catch (error) {
