@@ -155,7 +155,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                     {/* Itinerary Section */}
                     {/* Logic: Handle both Array (from screenshot) and Object (Day1, Day2) structures */}
                     {(Array.isArray(itinerary) ? itinerary : Object.values(itinerary)).length > 0 && (
-                    <View className="mb-20">
+                    <View className="mb-2">
                         <Text className="text-xl font-bold text-black dark:text-white mb-4">Day-wise Itinerary</Text>
                         
                         {/* If 'itinerary' is an array, we map using index. 
@@ -202,14 +202,14 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                 </ScrollView>
 
                 {/* Footer Button */}
-                <View className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                {/* <View className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                     <TouchableOpacity 
                         onPress={onClose}
                         className="bg-orange-500 py-4 rounded-full flex items-center justify-center"
                     >
                         <Text className="text-white font-bold text-xl" numberOfLines={1}>Close Details</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
                 </Animated.View>
             </View>
         </Modal>

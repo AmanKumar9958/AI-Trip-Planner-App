@@ -1,6 +1,6 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from "../Context/AuthContext";
 import { ThemeProvider, useTheme } from "../Context/ThemeContext";
 import CustomSplashScreen from "../components/CustomSplashScreen";
@@ -28,7 +28,7 @@ const RootLayoutNav = () => {
   }, [user, loading, segments]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
       <Stack screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
@@ -42,7 +42,7 @@ const RootLayoutNav = () => {
       {!isAppReady && (
         <CustomSplashScreen onFinish={() => setVideoFinished(true)} />
       )}
-    </View>
+    </GestureHandlerRootView>
   );
 }
 

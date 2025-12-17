@@ -98,11 +98,11 @@ export default function Explore() {
                 .replace('{traveler}', selectedTraveler.people)
                 .replace('{budget}', selectedBudget.budget);
 
-            console.log("Sending Prompt:", finalPrompt);
+            // console.log("Sending Prompt:", finalPrompt);
 
             const result = await chatSession.sendMessage(finalPrompt);
             const responseText = result.response.text();
-            console.log("AI Response:", responseText);
+            // console.log("AI Response:", responseText);
             
             const tripData = JSON.parse(responseText);
 
