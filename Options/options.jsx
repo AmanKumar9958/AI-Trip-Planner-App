@@ -1,15 +1,14 @@
 export const SelectBudget = [
-    { iconName: "money-bill-wave", iconFamily: "FontAwesome5", budget: "Low", amount: "Under ₹5,000" },
-    { iconName: "wallet", iconFamily: "FontAwesome5", budget: "Medium", amount: "Under ₹10,000" },
-    { iconName: "sack-dollar", iconFamily: "FontAwesome5", budget: "High", amount: "More than ₹10,000" }
+    { id: 1, title: 'Cheap', icon: '💵', budget: 'Low', amount: 'Under ₹5,000' },
+    { id: 2, title: 'Moderate', icon: '💰', budget: 'Medium', amount: 'Under ₹10,000' },
+    { id: 3, title: 'Luxury', icon: '💸', budget: 'High', amount: 'More than ₹10,000' }
 ];
 
-
 export const SelectMembers = [
-    { iconName: "airplane", iconFamily: "Ionicons", people: "Just Me", },
-    { iconName: "glass-cheers", iconFamily: "FontAwesome5", people: "A Couple", },
-    { iconName: "home", iconFamily: "FontAwesome5", people: "Family", },
-    { iconName: "user-friends", iconFamily: "FontAwesome5", people: "Friends", }
+    { id: 1, title: 'Just Me', icon: '✈️', people: 'Just Me' },
+    { id: 2, title: 'Couple', icon: '🥂', people: 'A Couple' },
+    { id: 3, title: 'Family', icon: '🏡', people: 'Family' },
+    { id: 4, title: 'Friends', icon: '⛵', people: 'Friends' }
 ];
 
 export const AI_PROMPT = `

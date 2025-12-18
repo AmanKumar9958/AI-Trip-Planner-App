@@ -6,18 +6,17 @@ const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 if (!apiKey) {
     console.error("Error: EXPO_PUBLIC_GEMINI_API_KEY is not set in the environment variables.");
 }
-console.log("Current API Key:", process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+// console.log("Current API Key:", process.env.EXPO_PUBLIC_GEMINI_API_KEY);
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Allow overriding model via env; default to a broadly supported model on v1beta
-// If env not set, fall back to gemini-1.0-pro which is widely available.
+// If env not set, fall back to gemini-1.5-flash which is widely available and stable.
 const requestedModel = (process.env.EXPO_PUBLIC_GEMINI_MODEL || "").trim();
 const aliasMap = {
-    "gemini-1.5-flash": "gemini-2.5-flash", 
-    "gemini-1.0-pro": "gemini-2.5-flash"
+    // Map older/unstable aliases to stable versions if needed, or leave empty
 };
-let modelId = requestedModel || "gemini-2.5-flash";
+let modelId = requestedModel || "gemini-1.5-flash";
 if (aliasMap[modelId]) {
     logger.warn(`[AI] Mapping requested model '${modelId}' to '${aliasMap[modelId]}' for compatibility.`);
     modelId = aliasMap[modelId];
@@ -25,16 +24,23 @@ if (aliasMap[modelId]) {
 if (!requestedModel) {
     logger.warn(`[AI] Using default model '${modelId}'. Set EXPO_PUBLIC_GEMINI_MODEL in .env to change.`);
 }
-logger.info(`[AI] Generative model in use: ${modelId}`);
+// logger.info(`[AI] Generative model in use: ${modelId}`);
 const model = genAI.getGenerativeModel({ model: modelId });
 
-// Helper: try generating with fallback models to avoid 404s on specific accounts/regions
-const candidatesBase = [modelId, "gemini-2.5-flash", "gemini-2.0-flash"];
+// Helper: try generating with fallback models to avoid 404s or 503s
+const candidatesBase = [
+    modelId,
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite-preview-02-05",
+    "gemini-2.5-pro"
+];
 const candidates = Array.from(new Set(candidatesBase));
 
-function is404Like(err) {
+function isRetryable(err) {
     const msg = (err && (err.message || err.toString())) || "";
-    return msg.includes(" 404 ") || msg.includes("not found") || msg.includes("Not Found");
+    const is404 = msg.includes(" 404 ") || msg.includes("not found") || msg.includes("Not Found");
+    const is503 = msg.includes(" 503 ") || msg.includes("overloaded") || msg.includes("Overloaded");
+    return is404 || is503;
 }
 
 export async function generateAIResponse(prompt, config = {}) {
@@ -50,15 +56,15 @@ export async function generateAIResponse(prompt, config = {}) {
             return res.response?.text?.() ?? "";
         } catch (err) {
             lastError = err;
-            if (is404Like(err)) {
-                logger.warn(`[AI] Model '${m}' returned 404/not-found. Trying next candidate...`);
+            if (isRetryable(err)) {
+                logger.warn(`[AI] Model '${m}' failed with retryable error (404/503). Trying next candidate... Error: ${err.message}`);
                 // Try REST v1 endpoint before moving to next candidate
                 try {
                     const text = await generateViaRestV1(m, prompt, genCfg);
                     if (text) return text;
                 } catch (restErr) {
-                    if (is404Like(restErr)) {
-                        logger.warn(`[AI] REST v1 with model '${m}' also 404. Moving to next candidate...`);
+                    if (isRetryable(restErr)) {
+                        logger.warn(`[AI] REST v1 with model '${m}' also failed. Moving to next candidate...`);
                     } else {
                         throw restErr;
                     }
@@ -83,7 +89,7 @@ export async function generateAIResponse(prompt, config = {}) {
                 });
                 return res.response?.text?.() ?? "";
             } catch (sdkErr) {
-                if (is404Like(sdkErr)) logger.warn(`[AI] Preferred model not found via SDK, trying REST v1: ${preferred}`);
+                if (isRetryable(sdkErr)) logger.warn(`[AI] Preferred model failed via SDK (404/503), trying REST v1: ${preferred}`);
                 // Try REST v1 for the discovered model
                 const text = await generateViaRestV1(preferred, prompt, genCfg);
                 if (text) return text;

@@ -1,8 +1,8 @@
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { doc, setDoc } from 'firebase/firestore';
 import { useRef, useState } from 'react';
-import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { chatSession } from '../../AI/Modal';
 import PageTransition from '../../components/PageTransition';
@@ -135,12 +135,7 @@ export default function Explore() {
         }
     };
 
-    const renderIcon = (iconName, iconFamily, size = 24, color = "black") => {
-        if (iconFamily === 'FontAwesome5') {
-            return <FontAwesome5 name={iconName} size={size} color={color} solid />;
-        }
-        return <Ionicons name={iconName} size={size} color={color} />;
-    };
+
 
     return (
         <PageTransition>
@@ -151,6 +146,7 @@ export default function Explore() {
                     contentContainerStyle={{ paddingBottom: 80 }}
                     onScroll={onScroll}
                     scrollEventThrottle={16}
+                    keyboardShouldPersistTaps="handled"
                 >
                 {/* Header */}
                 <View className="flex-row justify-between items-center mb-8">
@@ -166,7 +162,7 @@ export default function Explore() {
                     <View className="flex-row items-center bg-gray-100 dark:bg-gray-900 rounded-2xl p-2 border border-gray-200 dark:border-gray-800 relative">
                         <Ionicons name="search" size={24} color="gray" style={{ marginRight: 10 }} />
                         <TextInput
-                            placeholder="Search Destination (e.g., Paris, Tokyo)..."
+                            placeholder="Search Destination (e.g., India, Paris)..."
                             placeholderTextColor="gray"
                             className="flex-1 text-black dark:text-white text-base"
                             value={destination}
@@ -245,7 +241,7 @@ export default function Explore() {
                                 }`}
                             >
                                 <View className="mb-2">
-                                    {renderIcon(option.iconName, option.iconFamily, 30, selectedBudget?.budget === option.budget ? '#ea580c' : (theme === 'dark' ? 'white' : 'black'))}
+                                    <Text className="text-3xl">{option.icon}</Text>
                                 </View>
                                 <Text className={`font-bold text-center ${
                                     selectedBudget?.budget === option.budget ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
@@ -270,7 +266,7 @@ export default function Explore() {
                                 }`}
                             >
                                 <View className="mb-2">
-                                    {renderIcon(option.iconName, option.iconFamily, 30, selectedTraveler?.people === option.people ? '#ea580c' : (theme === 'dark' ? 'white' : 'black'))}
+                                    <Text className="text-3xl">{option.icon}</Text>
                                 </View>
                                 <Text className={`font-bold text-lg ${
                                     selectedTraveler?.people === option.people ? 'text-orange-600 dark:text-orange-400' : 'text-black dark:text-white'
@@ -283,11 +279,18 @@ export default function Explore() {
                 <View className="absolute bottom-20 left-5 right-5 mb-10">
                     <TouchableOpacity 
                         onPress={onGenerateTrip}
-                        className="bg-orange-500 rounded-full py-4 items-center shadow-lg"
+                        disabled={loading}
+                        className={`bg-orange-500 rounded-full py-4 items-center shadow-lg ${loading ? 'opacity-80' : ''}`}
                     >
-                        <View className="flex-row items-center">
-                            <Text className="text-white text-xl font-bold mr-2">Generate Trip</Text>
-                            <Ionicons name="sparkles" size={20} color="white" />
+                        <View className="flex-row items-center justify-center">
+                            <Text className="text-white text-xl font-bold mr-1" numberOfLines={1}>
+                                {loading ? 'Generating Trip...' : 'Generate Trip'}
+                            </Text>
+                            {loading ? (
+                                <ActivityIndicator size="small" color="#ffffff" />
+                            ) : (
+                                <Ionicons name="sparkles" size={20} color="white" />
+                            )}
                         </View>
                     </TouchableOpacity>
                 </View>
