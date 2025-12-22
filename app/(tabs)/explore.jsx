@@ -102,9 +102,13 @@ export default function Explore() {
 
             const result = await chatSession.sendMessage(finalPrompt);
             const responseText = result.response.text();
-            // console.log("AI Response:", responseText);
+            let cleanText = responseText;
+            const jsonMatch = cleanText.match(/```json([\s\S]*?)```/) || cleanText.match(/```([\s\S]*?)```/);
+            if (jsonMatch) {
+                cleanText = jsonMatch[1].trim();
+            }
             
-            const tripData = JSON.parse(responseText);
+            const tripData = JSON.parse(cleanText);
 
             // Save to Firebase
             const docId = Date.now().toString();

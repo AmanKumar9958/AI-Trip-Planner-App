@@ -1,244 +1,76 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import logger from "../lib/logger";
+import OpenAI from "openai";
 
-const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+// 1. Setup Groq Client
+const apiKey = process.env.EXPO_PUBLIC_GROQ_API_KEY;
 
 if (!apiKey) {
-    console.error("Error: EXPO_PUBLIC_GEMINI_API_KEY is not set in the environment variables.");
-}
-// console.log("Current API Key:", process.env.EXPO_PUBLIC_GEMINI_API_KEY);
-
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// Allow overriding model via env; default to a broadly supported model on v1beta
-// If env not set, fall back to gemini-1.5-flash which is widely available and stable.
-const requestedModel = (process.env.EXPO_PUBLIC_GEMINI_MODEL || "").trim();
-const aliasMap = {
-    // Map older/unstable aliases to stable versions if needed, or leave empty
-};
-let modelId = requestedModel || "gemini-1.5-flash";
-if (aliasMap[modelId]) {
-    logger.warn(`[AI] Mapping requested model '${modelId}' to '${aliasMap[modelId]}' for compatibility.`);
-    modelId = aliasMap[modelId];
-}
-if (!requestedModel) {
-    logger.warn(`[AI] Using default model '${modelId}'. Set EXPO_PUBLIC_GEMINI_MODEL in .env to change.`);
-}
-// logger.info(`[AI] Generative model in use: ${modelId}`);
-const model = genAI.getGenerativeModel({ model: modelId });
-
-// Helper: try generating with fallback models to avoid 404s or 503s
-const candidatesBase = [
-    modelId,
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite-preview-02-05",
-    "gemini-2.5-pro"
-];
-const candidates = Array.from(new Set(candidatesBase));
-
-function isRetryable(err) {
-    const msg = (err && (err.message || err.toString())) || "";
-    const is404 = msg.includes(" 404 ") || msg.includes("not found") || msg.includes("Not Found");
-    const is503 = msg.includes(" 503 ") || msg.includes("overloaded") || msg.includes("Overloaded");
-    return is404 || is503;
+  console.error("Error: EXPO_PUBLIC_GROQ_API_KEY is not set. Please check your .env file.");
 }
 
-export async function generateAIResponse(prompt, config = {}) {
-    const genCfg = { ...generationConfig, ...config };
-    let lastError;
-    for (const m of candidates) {
-        try {
-            const mdl = genAI.getGenerativeModel({ model: m });
-            const res = await mdl.generateContent({
-                contents: [{ role: "user", parts: [{ text: prompt }]}],
-                generationConfig: genCfg,
-            });
-            return res.response?.text?.() ?? "";
-        } catch (err) {
-            lastError = err;
-            if (isRetryable(err)) {
-                logger.warn(`[AI] Model '${m}' failed with retryable error (404/503). Trying next candidate... Error: ${err.message}`);
-                // Try REST v1 endpoint before moving to next candidate
-                try {
-                    const text = await generateViaRestV1(m, prompt, genCfg);
-                    if (text) return text;
-                } catch (restErr) {
-                    if (isRetryable(restErr)) {
-                        logger.warn(`[AI] REST v1 with model '${m}' also failed. Moving to next candidate...`);
-                    } else {
-                        throw restErr;
-                    }
-                }
-                continue;
-            }
-            throw err;
-        }
-    }
-    // As a final attempt, query available models from the API and try a suitable one
-    try {
-        const available = await listModelsViaRest();
-        const preferred = pickPreferredModel(available);
-        if (preferred) {
-            logger.info(`[AI] Trying preferred available model from list: ${preferred}`);
-            try {
-                // Try SDK first for the discovered model
-                const mdl = genAI.getGenerativeModel({ model: preferred });
-                const res = await mdl.generateContent({
-                    contents: [{ role: "user", parts: [{ text: prompt }]}],
-                    generationConfig: genCfg,
-                });
-                return res.response?.text?.() ?? "";
-            } catch (sdkErr) {
-                if (isRetryable(sdkErr)) logger.warn(`[AI] Preferred model failed via SDK (404/503), trying REST v1: ${preferred}`);
-                // Try REST v1 for the discovered model
-                const text = await generateViaRestV1(preferred, prompt, genCfg);
-                if (text) return text;
-            }
-        } else {
-            logger.warn('[AI] No suitable models found in ListModels response.');
-        }
-    } catch (listErr) {
-        lastError = listErr;
-    }
-    throw lastError || new Error("All AI model candidates and discovery attempts failed");
-}
-
-async function generateViaRestV1(modelName, prompt, genCfg) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-    // Strip responseMimeType which REST v1 may reject from generationConfig
-    const { responseMimeType: _omitResponseMimeType, ...restGenCfg } = genCfg || {};
-    const body = {
-        contents: [{ role: "user", parts: [{ text: prompt }]}],
-        // REST v1 currently rejects responseMimeType in generationConfig; strip it
-        generationConfig: restGenCfg,
-    };
-    const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-        const text = await resp.text().catch(() => "");
-        const err = new Error(`REST v1 error ${resp.status}: ${text}`);
-        // Tag 404-like conditions
-        if (resp.status === 404) err.message = `404 ${text}`;
-        throw err;
-    }
-    const data = await resp.json();
-    const candidate = data?.candidates?.[0];
-    const partText = candidate?.content?.parts?.[0]?.text || "";
-    return partText;
-}
-
-async function listModelsViaRest() {
-    const url = `https://generativelanguage.googleapis.com/v1/models?key=${encodeURIComponent(apiKey)}`;
-    const resp = await fetch(url);
-    if (!resp.ok) {
-        const text = await resp.text().catch(() => "");
-        throw new Error(`ListModels error ${resp.status}: ${text}`);
-    }
-    const data = await resp.json();
-    return Array.isArray(data?.models) ? data.models : [];
-}
-
-function pickPreferredModel(models) {
-    // Prefer models that support generateContent and look like Gemini models
-    const supports = (m) => Array.isArray(m?.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent');
-    const name = (m) => m?.name || '';
-    const gemini = models.filter((m) => supports(m) && /^models\//.test(name(m)) && name(m).includes('gemini'));
-    // Ranking: 1) 1.5 pro/flash latest, 2) 1.0 pro/flash, 3) any gemini with generateContent
-    const rank = (n) => {
-        const s = n.toLowerCase();
-        if (s.includes('1.5') && s.includes('pro')) return 1;
-        if (s.includes('1.5') && s.includes('flash')) return 2;
-        if (s.includes('1.0') && s.includes('pro')) return 3;
-        if (s.includes('1.0') && s.includes('flash')) return 4;
-        return 10;
-    };
-    gemini.sort((a, b) => rank(name(a)) - rank(name(b)));
-    const picked = name(gemini[0]);
-    // API returns names like 'models/gemini-1.5-pro'; strip 'models/' prefix for SDK
-    if (picked && picked.startsWith('models/')) return picked.slice(7);
-    return picked || null;
-}
-
-const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
-    responseMimeType: "application/json",
-};
-export const chatSession = model.startChat({
-    generationConfig,
-    history: [
-        {
-            role: "user",
-            parts: [
-                { 
-                    text: `Generate a detailed travel itinerary for a trip to **{location}** for **{totalDays}** days, traveling with **{traveler}**, with a budget of **{budget}**.
-
-                    The output must be in **strict JSON format** with the **exact key names** as follows:
-
-                    ### **JSON Output Format (DO NOT CHANGE KEY NAMES)**:
-                    \`\`\`json
-                    {
-                        "tripData": {
-                            "HotelOptions": [
-                                {
-                                    "HotelName": "string",
-                                    "HotelAddress": "string",
-                                    "PriceRange": "number",
-                                    "HotelImageURL": "string",
-                                    "GeoCoordinates": "string",
-                                    "Rating": "number",
-                                    "Description": "string"
-                                }
-                            ],
-                            "Itinerary": [
-                                {
-                                    "Day": "Day 1",
-                                    "PlaceName": "string",
-                                    "PlaceDetails": "string",
-                                    "PlaceImageURL": "string",
-                                    "GeoCoordinates": "string",
-                                    "TicketPricing": "string",
-                                    "TravelTime": "string",
-                                    "BestTimeToVisit": "string"
-                                },
-                                {
-                                    "Day": "Day 2",
-                                    "PlaceName": "string",
-                                    "PlaceDetails": "string",
-                                    "PlaceImageURL": "string",
-                                    "GeoCoordinates": "string",
-                                    "TicketPricing": "string",
-                                    "TravelTime": "string",
-                                    "BestTimeToVisit": "string"
-                                },
-                                ...
-                                {
-                                    "Day": "Day {totalDays}",
-                                    "PlaceName": "string",
-                                    "PlaceDetails": "string",
-                                    "PlaceImageURL": "string",
-                                    "GeoCoordinates": "string",
-                                    "TicketPricing": "string",
-                                    "TravelTime": "string",
-                                    "BestTimeToVisit": "string"
-                                }
-                            ]
-                        }
-                    }
-                    \`\`\`
-                    
-                    - **Ensure that the itinerary includes exactly {totalDays} days. Do not skip any days.**
-                    - **Maintain consistency in format and structure.**
-                    - **Do not leave any day empty or missing.**
-                    - **Ensure all key names remain unchanged.**
-                    - **If a day has multiple activities, list them under the same "Day".**`
-                },
-            ],
-        },
-    ],
+const client = new OpenAI({
+  apiKey: apiKey,
+  baseURL: "https://api.groq.com/openai/v1", // Using Groq's endpoint
+  dangerouslyAllowBrowser: true, // Required for React Native / Expo
 });
+
+// Best model for complex JSON tasks (Free Tier: ~1,000 requests/day)
+// If you need more volume, switch to: "llama-3.1-8b-instant"
+const MODEL_NAME = "llama-3.3-70b-versatile"; 
+
+/**
+ * Generates a response from AI.
+ * Keeps the same function signature as your old code: (prompt, config)
+ * although we ignore 'config' here since Groq handles it differently.
+ */
+export async function generateAIResponse(prompt, config = {}) {
+  try {
+    const completion = await client.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a helpful assistant. Provide response in plain text." },
+        { role: "user", content: prompt }
+      ],
+      model: MODEL_NAME,
+    });
+
+    return completion.choices[0]?.message?.content || "";
+  } catch (error) {
+    console.error("Groq AI Error (generateAIResponse):", error);
+    throw error;
+  }
+}
+
+/**
+ * Mocks the Google Gemini 'chatSession' object.
+ * This ensures you don't have to change code in 'mytrip.jsx' or 'home.jsx'.
+ */
+export const chatSession = {
+  sendMessage: async (prompt) => {
+    try {
+      // We send the System Prompt here to enforce strict JSON
+      const completion = await client.chat.completions.create({
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a travel assistant. You must return only strict JSON. Do not use markdown (```json). Do not add any conversational text." 
+          },
+          { role: "user", content: prompt }
+        ],
+        model: MODEL_NAME,
+        temperature: 1,
+        // response_format: { type: "json_object" } // Uncomment if you want to force JSON mode (strictly)
+      });
+
+      const resultText = completion.choices[0]?.message?.content || "";
+
+      // Return the exact structure your app expects from Gemini
+      return {
+        response: {
+          text: () => resultText
+        }
+      };
+    } catch (error) {
+      console.error("Groq AI Error (chatSession):", error);
+      throw error;
+    }
+  }
+};
