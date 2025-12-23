@@ -34,6 +34,7 @@ export default function Explore() {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [duration, setDuration] = useState(5);
     const [selectedBudget, setSelectedBudget] = useState(null);
+    const [customBudget, setCustomBudget] = useState('');
     const [selectedTraveler, setSelectedTraveler] = useState(null);
     const [loading, setLoading] = useState(false);
     
@@ -82,7 +83,7 @@ export default function Explore() {
     };
 
     const onGenerateTrip = async () => {
-        if (!destination || !selectedBudget || !selectedTraveler) {
+        if (!destination || (!selectedBudget && !customBudget) || !selectedTraveler) {
             Alert.alert('Missing Information', 'Please fill all the fields to generate your trip plan.', [
                 { text: 'OK' }
             ]);
@@ -92,11 +93,29 @@ export default function Explore() {
         setLoading(true);
 
         try {
+            let budgetValue = selectedBudget?.budget;
+            let budgetRules = '';
+
+            if (customBudget) {
+                budgetValue = `${customBudget}`;
+                budgetRules = `Ensure total entire trip recommendations fit under ${customBudget}.`;
+            } else {
+                // Default rules for selected categories
+                if (selectedBudget.budget === "Low") {
+                    budgetRules = "Ensure total entire trip recommendations fit under ₹7,000.";
+                } else if (selectedBudget.budget === "Medium") {
+                    budgetRules = "Ensure total entire trip recommendations fit under ₹15,000.";
+                } else if (selectedBudget.budget === "High") {
+                    budgetRules = "Allow spending more than ₹25,000 for entire trip.";
+                }
+            }
+
             const finalPrompt = AI_PROMPT
                 .replace('{location}', destination)
                 .replace('{totalDays}', duration)
                 .replace('{traveler}', selectedTraveler.people)
-                .replace('{budget}', selectedBudget.budget);
+                .replace('{budget}', budgetValue)
+                .replace('{budgetRules}', budgetRules);
 
             // console.log("Sending Prompt:", finalPrompt);
 
@@ -116,7 +135,7 @@ export default function Explore() {
                 userSelection: {
                     Location: destination,
                     TotalDays: duration,
-                    budget: selectedBudget.budget,
+                    budget: budgetValue,
                     TravelingWith: selectedTraveler.people
                 },
                 tripData: tripData,
@@ -129,6 +148,7 @@ export default function Explore() {
             setDestination('');
             setDuration(5);
             setSelectedBudget(null);
+            setCustomBudget('');
             setSelectedTraveler(null);
             router.push('/(tabs)/mytrip');
 
@@ -237,7 +257,10 @@ export default function Explore() {
                         {SelectBudget.map((option, index) => (
                             <TouchableOpacity
                                 key={index}
-                                onPress={() => setSelectedBudget(option)}
+                                onPress={() => {
+                                    setSelectedBudget(option);
+                                    setCustomBudget('');
+                                }}
                                 className={`w-[31%] p-4 rounded-2xl border items-center justify-center ${
                                     selectedBudget?.budget === option.budget 
                                     ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' 
@@ -252,6 +275,21 @@ export default function Explore() {
                                 }`}>{option.budget}</Text>
                             </TouchableOpacity>
                         ))}
+                    </View>
+
+                    <View className="mt-4">
+                        <Text className="text-lg font-medium text-black dark:text-white mb-2">Or enter a specific amount <Text className="text-sm font-medium text-red-500 dark:text-red-500 mb-2">(Do not include travel expenses)</Text></Text>
+                        <TextInput
+                            placeholder="Ex. 9500"
+                            placeholderTextColor="gray"
+                            keyboardType="numeric"
+                            className="bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-black dark:text-white border border-gray-200 dark:border-gray-800"
+                            value={customBudget}
+                            onChangeText={(text) => {
+                                setCustomBudget(text);
+                                setSelectedBudget(null);
+                            }}
+                        />
                     </View>
                 </View>
 
