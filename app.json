@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trip Genius",
     "slug": "AI-Trip-Planner-App",
-    "owner": "amanwebdev24",
+    "owner": "codewithaman",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Trip_Genius_Icon.png",
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/Trip_Genius_Icon.png",
+        "foregroundImage": "./assets/images/Trip_Genius_Icon.png"
       },
       "package": "com.codewithamandev.tripgenius",
       "googleServicesFile": "./google-services.json",
@@ -30,12 +30,11 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
       "expo-router",
-      "@react-native-google-signin/google-signin",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,

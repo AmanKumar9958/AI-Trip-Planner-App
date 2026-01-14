@@ -1,0 +1,9 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": ["codewithaman", "aitripplannerapp", "tripgenius", "TripGenius", "codewithamandev", "@react-native-google-signin/google-signin"],
+    "ignoreWords": [],
+    "import": []
+}
