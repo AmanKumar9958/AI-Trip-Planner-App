@@ -10,6 +10,14 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 export const ThemeContext = createContext();
 
+// Default fallback values for when context is not available
+const DEFAULT_THEME_CONTEXT = {
+    theme: 'light',
+    updateTheme: () => {},
+    colorScheme: 'light',
+    toggleColorScheme: () => {}
+};
+
 export const ThemeProvider = ({ children }) => {
     const { colorScheme, setColorScheme, toggleColorScheme } = useColorScheme();
     const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
@@ -68,4 +76,11 @@ export const ThemeProvider = ({ children }) => {
     );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        console.warn('useTheme must be used within ThemeProvider');
+        return DEFAULT_THEME_CONTEXT;
+    }
+    return context;
+};
