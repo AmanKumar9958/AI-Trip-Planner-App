@@ -58,8 +58,6 @@ export const AuthProvider = ({ children }) => {
             if (idToken) {
                 const credential = GoogleAuthProvider.credential(idToken);
                 await signInWithCredential(auth, credential);
-                // Clear error on success
-                setError(null);
             } else {
                 const errorMsg = "No ID token found in Google Sign-In response";
                 console.error(errorMsg);
@@ -79,8 +77,6 @@ export const AuthProvider = ({ children }) => {
             setError(null); // Clear previous errors
             await GoogleSignin.signOut();
             await signOut(auth);
-            // Clear error on success
-            setError(null);
         } catch (error) {
             console.error("Logout Error:", error);
             setError(error);

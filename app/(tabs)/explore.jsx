@@ -217,22 +217,15 @@ export default function Explore() {
             if (error instanceof SyntaxError) {
                 errorMessage = "Error processing trip data. Please try again with different parameters.";
             } 
-            // Network/fetch errors - check error name
-            else if (error.name === 'NetworkError' || (error instanceof TypeError && !navigator.onLine)) {
+            // Network/fetch errors - check error name and type
+            else if (error.name === 'NetworkError' || error instanceof TypeError) {
                 errorMessage = "Network error. Please check your internet connection and try again.";
             } 
             // Request timeout
             else if (error.name === 'AbortError' || error.name === 'TimeoutError') {
                 errorMessage = "Request timed out. Please try again.";
             }
-            // Configuration errors - fallback string check for specific messages
-            else if (error.message && (
-                error.message.includes('not configured') || 
-                error.message.includes('Invalid response') ||
-                error.message.includes('Empty response')
-            )) {
-                errorMessage = "Service error. Please try again or contact support.";
-            }
+            // Generic fallback - provides the default message
             
             Alert.alert("Error", errorMessage, [
                 { text: 'OK' }
