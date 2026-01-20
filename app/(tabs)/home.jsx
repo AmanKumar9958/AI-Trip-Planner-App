@@ -46,8 +46,16 @@ const Home = () => {
     const GetMyTrips = async () => {
         setLoading(true);
         setUserTrips([]);
+        
+        // Validate user and user.email exist
+        if (!user || !user.email) {
+            console.warn('Cannot fetch trips: User or user email is not available');
+            setLoading(false);
+            return;
+        }
+
         try {
-            const q = query(collection(db, 'AI Trips'), where('userEmailID', '==', user?.email));
+            const q = query(collection(db, 'AI Trips'), where('userEmailID', '==', user.email));
             const querySnapshot = await getDocs(q);
             
             const trips = [];
@@ -57,6 +65,7 @@ const Home = () => {
             setUserTrips(trips);
         } catch (error) {
             console.error("Error fetching trips:", error);
+            // Don't show alert for fetch errors, just log them
         } finally {
             setLoading(false);
         }
@@ -78,13 +87,46 @@ const Home = () => {
                 { 
                     text: "Logout", 
                     onPress: async () => {
-                        await logout();
-                        router.replace('/');
+                        try {
+                            await logout();
+                            if (router && router.replace) {
+                                router.replace('/');
+                            }
+                        } catch (error) {
+                            console.error('Error during logout:', error);
+                            Alert.alert('Error', 'Failed to logout. Please try again.');
+                        }
                     },
                     style: 'destructive'
                 }
             ]
         );
+    };
+
+    const handleNavigateToExplore = () => {
+        try {
+            if (!router || !router.push) {
+                console.error('Router is not available');
+                return;
+            }
+            router.push('/(tabs)/explore');
+        } catch (error) {
+            console.error('Error navigating to explore:', error);
+            Alert.alert('Error', 'Failed to navigate. Please try again.');
+        }
+    };
+
+    const handleNavigateToMyTrip = () => {
+        try {
+            if (!router || !router.push) {
+                console.error('Router is not available');
+                return;
+            }
+            router.push('/(tabs)/mytrip');
+        } catch (error) {
+            console.error('Error navigating to mytrip:', error);
+            Alert.alert('Error', 'Failed to navigate. Please try again.');
+        }
     };
 
     return (
@@ -119,7 +161,7 @@ const Home = () => {
                 </Text>
 
                 {/* Create New Trip Button */}
-                <TouchableOpacity className="bg-orange-500 rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm" onPress={() => router.push('/(tabs)/explore')}>
+                <TouchableOpacity className="bg-orange-500 rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm" onPress={handleNavigateToExplore}>
                     <Ionicons name="add" size={24} color="white" style={{ marginRight: 8 }} />
                     <Text className="text-white text-xl font-bold" numberOfLines={1}>Create New Trip</Text>
                 </TouchableOpacity>
@@ -128,7 +170,7 @@ const Home = () => {
                 <View className="mb-8">
                     <TouchableOpacity 
                         className="flex-row justify-between items-center mb-4"
-                        onPress={() => router.push('/(tabs)/mytrip')}
+                        onPress={handleNavigateToMyTrip}
                     >
                         <Text className="text-xl font-bold text-black dark:text-white" numberOfLines={1}>My Trips</Text>
                         <Ionicons name="arrow-forward" size={24} color={theme === 'dark' ? "white" : "black"} />

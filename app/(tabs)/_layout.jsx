@@ -3,6 +3,7 @@ import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { TabBarProvider, useTabBar } from '../../Context/TabBarContext';
 import { useTheme } from '../../Context/ThemeContext';
 
@@ -85,8 +86,10 @@ function TabLayoutContent() {
 
 export default function TabLayout() {
     return (
-        <TabBarProvider>
-            <TabLayoutContent />
-        </TabBarProvider>
+        <ErrorBoundary>
+            <TabBarProvider>
+                <TabLayoutContent />
+            </TabBarProvider>
+        </ErrorBoundary>
     );
 }

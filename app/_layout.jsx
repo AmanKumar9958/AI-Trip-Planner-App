@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from "../Context/AuthContext";
 import { ThemeProvider, useTheme } from "../Context/ThemeContext";
 import CustomSplashScreen from "../components/CustomSplashScreen";
+import ErrorBoundary from "../components/ErrorBoundary";
 import "../global.css";
 
 const RootLayoutNav = () => {
@@ -48,10 +49,12 @@ const RootLayoutNav = () => {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <RootLayoutNav />
-      </ThemeProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider>
+          <RootLayoutNav />
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
