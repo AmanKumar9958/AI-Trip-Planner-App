@@ -51,15 +51,30 @@ export default function Explore() {
             setSuggestions([]);
             return;
         }
+
+        // Check if API key is available
+        if (!API_KEY) {
+            console.error('Location API key is not configured');
+            Alert.alert(
+                'Configuration Error',
+                'Location search is not configured. Please contact support or enter your destination manually.',
+                [{ text: 'OK' }]
+            );
+            return;
+        }
+
         try {
             const url = `https://api.locationiq.com/v1/autocomplete?key=${API_KEY}&q=${encodeURIComponent(query)}&limit=5&format=json`;
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
             const data = await response.json();
-            setSuggestions(data);
+            setSuggestions(data || []);
         } catch (error) {
             console.error("Error fetching location data:", error);
             setSuggestions([]);
+            // Don't show alert for every failed search, just log it
         }
     };
 
@@ -83,6 +98,17 @@ export default function Explore() {
     };
 
     const onGenerateTrip = async () => {
+        // Validate user is logged in
+        if (!user) {
+            Alert.alert(
+                'Not Logged In',
+                'You must be logged in to generate a trip. Please log in and try again.',
+                [{ text: 'OK' }]
+            );
+            return;
+        }
+
+        // Validate all required fields
         if (!destination || (!selectedBudget && !customBudget) || !selectedTraveler) {
             Alert.alert('Missing Information', 'Please fill all the fields to generate your trip plan.', [
                 { text: 'OK' }
@@ -119,8 +145,19 @@ export default function Explore() {
 
             // console.log("Sending Prompt:", finalPrompt);
 
+            // Generate trip with AI
             const result = await chatSession.sendMessage(finalPrompt);
+            
+            if (!result || !result.response) {
+                throw new Error('Invalid response from AI service');
+            }
+
             const responseText = result.response.text();
+            
+            if (!responseText) {
+                throw new Error('Empty response from AI service');
+            }
+
             let cleanText = responseText;
             const jsonMatch = cleanText.match(/```json([\s\S]*?)```/) || cleanText.match(/```([\s\S]*?)```/);
             if (jsonMatch) {
@@ -128,6 +165,16 @@ export default function Explore() {
             }
             
             const tripData = JSON.parse(cleanText);
+
+            // Validate trip data has required structure
+            if (!tripData || typeof tripData !== 'object') {
+                throw new Error('Invalid trip data format received');
+            }
+
+            // Validate user email before saving
+            if (!user.email) {
+                throw new Error('User email is not available');
+            }
 
             // Save to Firebase
             const docId = Date.now().toString();
@@ -139,23 +186,42 @@ export default function Explore() {
                     TravelingWith: selectedTraveler.people
                 },
                 tripData: tripData,
-                userEmailID: user?.email,
+                userEmailID: user.email,
                 id: docId
             });
 
             setLoading(false);
+            
+            // Reset form
             setSelectedLocation(null);
             setDestination('');
             setDuration(5);
             setSelectedBudget(null);
             setCustomBudget('');
             setSelectedTraveler(null);
-            router.push('/(tabs)/mytrip');
+            
+            // Navigate to my trips page
+            if (router && router.push) {
+                router.push('/(tabs)/mytrip');
+            }
 
         } catch (error) {
             console.error("Trip Generation Error:", error);
-            Alert.alert("Error", "Failed to generate trip. Please try again.");
             setLoading(false);
+            
+            // Show user-friendly error message
+            let errorMessage = "Failed to generate trip. Please try again.";
+            if (error.message.includes('API key')) {
+                errorMessage = "AI service is not configured. Please contact support.";
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorMessage = "Network error. Please check your internet connection and try again.";
+            } else if (error.message.includes('parse') || error.message.includes('JSON')) {
+                errorMessage = "Error processing trip data. Please try again with different parameters.";
+            }
+            
+            Alert.alert("Error", errorMessage, [
+                { text: 'OK' }
+            ]);
         }
     };
 
