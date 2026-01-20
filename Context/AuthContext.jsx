@@ -26,10 +26,6 @@ export const AuthProvider = ({ children }) => {
         const unsub = onAuthStateChanged(auth, (user) => {
             setUser(user);
             setLoading(false);
-        }, (err) => {
-            console.error('Auth state change error:', err);
-            setError(err);
-            setLoading(false);
         });
         return () => unsub();
     }, []);

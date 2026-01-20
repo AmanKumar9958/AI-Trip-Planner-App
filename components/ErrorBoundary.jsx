@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 class ErrorBoundary extends React.Component {
@@ -85,7 +85,11 @@ const styles = StyleSheet.create({
         color: '#ef4444',
         textAlign: 'center',
         marginBottom: 16,
-        fontFamily: 'monospace',
+        fontFamily: Platform.select({
+            ios: 'Courier',
+            android: 'monospace',
+            default: 'monospace',
+        }),
     },
     button: {
         backgroundColor: '#f97316',

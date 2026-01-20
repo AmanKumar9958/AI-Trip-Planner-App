@@ -209,14 +209,17 @@ export default function Explore() {
             console.error("Trip Generation Error:", error);
             setLoading(false);
             
-            // Show user-friendly error message
+            // Show user-friendly error message based on error type
             let errorMessage = "Failed to generate trip. Please try again.";
-            if (error.message.includes('API key')) {
-                errorMessage = "AI service is not configured. Please contact support.";
-            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+            
+            if (error instanceof TypeError && error.message.includes('fetch')) {
                 errorMessage = "Network error. Please check your internet connection and try again.";
-            } else if (error.message.includes('parse') || error.message.includes('JSON')) {
+            } else if (error instanceof SyntaxError || (error.message && error.message.toLowerCase().includes('json'))) {
                 errorMessage = "Error processing trip data. Please try again with different parameters.";
+            } else if (error.name === 'AbortError') {
+                errorMessage = "Request timed out. Please try again.";
+            } else if (error.message && error.message.toLowerCase().includes('api key')) {
+                errorMessage = "AI service is not configured. Please contact support.";
             }
             
             Alert.alert("Error", errorMessage, [
