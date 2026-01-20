@@ -68,4 +68,11 @@ export const ThemeProvider = ({ children }) => {
     );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        console.warn('useTheme must be used within ThemeProvider');
+        return { theme: 'light', updateTheme: () => {}, colorScheme: 'light', toggleColorScheme: () => {} };
+    }
+    return context;
+};
