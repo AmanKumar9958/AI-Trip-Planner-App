@@ -121,8 +121,16 @@ export default function MyTrip() {
     const GetMyTrips = async () => {
         setLoading(true);
         setUserTrips([]);
+        
+        // Validate user and user.email exist
+        if (!user || !user.email) {
+            console.warn('Cannot fetch trips: User or user email is not available');
+            setLoading(false);
+            return;
+        }
+
         try {
-            const q = query(collection(db, 'AI Trips'), where('userEmailID', '==', user?.email));
+            const q = query(collection(db, 'AI Trips'), where('userEmailID', '==', user.email));
             
             const querySnapshot = await getDocs(q);
             
@@ -133,6 +141,7 @@ export default function MyTrip() {
             setUserTrips(trips);
         } catch (error) {
             console.error("Error fetching trips:", error);
+            // Don't show alert for fetch errors, just log them
         } finally {
             setLoading(false);
         }
