@@ -23,11 +23,23 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (user) => {
-            setUser(user);
+        try {
+            const unsub = onAuthStateChanged(auth, (user) => {
+                setUser(user);
+                setLoading(false);
+            });
+            return () => {
+                try {
+                    unsub();
+                } catch (err) {
+                    console.error('Error unsubscribing from auth state:', err);
+                }
+            };
+        } catch (err) {
+            console.error('Error setting up auth state listener:', err);
+            setError(err);
             setLoading(false);
-        });
-        return () => unsub();
+        }
     }, []);
 
     const promptAsync = async () => {

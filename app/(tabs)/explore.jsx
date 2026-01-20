@@ -209,16 +209,24 @@ export default function Explore() {
             console.error("Trip Generation Error:", error);
             setLoading(false);
             
-            // Show user-friendly error message based on error type
+            // Classify error and show appropriate user-friendly message
+            // Using instanceof checks for reliable error type detection
             let errorMessage = "Failed to generate trip. Please try again.";
             
+            // Network/fetch errors
             if (error instanceof TypeError && error.message.includes('fetch')) {
                 errorMessage = "Network error. Please check your internet connection and try again.";
-            } else if (error instanceof SyntaxError || (error.message && error.message.toLowerCase().includes('json'))) {
+            } 
+            // JSON parsing errors
+            else if (error instanceof SyntaxError || (error.message && error.message.toLowerCase().includes('json'))) {
                 errorMessage = "Error processing trip data. Please try again with different parameters.";
-            } else if (error.name === 'AbortError') {
+            } 
+            // Request timeout
+            else if (error.name === 'AbortError') {
                 errorMessage = "Request timed out. Please try again.";
-            } else if (error.message && error.message.toLowerCase().includes('api key')) {
+            } 
+            // Configuration/API key errors (checked last as fallback for string matching)
+            else if (error.message && error.message.toLowerCase().includes('api key')) {
                 errorMessage = "AI service is not configured. Please contact support.";
             }
             
