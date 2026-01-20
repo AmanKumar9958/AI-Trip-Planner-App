@@ -210,24 +210,28 @@ export default function Explore() {
             setLoading(false);
             
             // Classify error and show appropriate user-friendly message
-            // Using instanceof checks for reliable error type detection
+            // Prioritize specific error types for reliable detection
             let errorMessage = "Failed to generate trip. Please try again.";
             
-            // Network/fetch errors
-            if (error instanceof TypeError && error.message.includes('fetch')) {
-                errorMessage = "Network error. Please check your internet connection and try again.";
-            } 
-            // JSON parsing errors
-            else if (error instanceof SyntaxError || (error.message && error.message.toLowerCase().includes('json'))) {
+            // JSON parsing errors - most reliable check
+            if (error instanceof SyntaxError) {
                 errorMessage = "Error processing trip data. Please try again with different parameters.";
             } 
-            // Request timeout
-            else if (error.name === 'AbortError') {
-                errorMessage = "Request timed out. Please try again.";
+            // Network/fetch errors - check error name
+            else if (error.name === 'NetworkError' || (error instanceof TypeError && !navigator.onLine)) {
+                errorMessage = "Network error. Please check your internet connection and try again.";
             } 
-            // Configuration/API key errors (checked last as fallback for string matching)
-            else if (error.message && error.message.toLowerCase().includes('api key')) {
-                errorMessage = "AI service is not configured. Please contact support.";
+            // Request timeout
+            else if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+                errorMessage = "Request timed out. Please try again.";
+            }
+            // Configuration errors - fallback string check for specific messages
+            else if (error.message && (
+                error.message.includes('not configured') || 
+                error.message.includes('Invalid response') ||
+                error.message.includes('Empty response')
+            )) {
+                errorMessage = "Service error. Please try again or contact support.";
             }
             
             Alert.alert("Error", errorMessage, [

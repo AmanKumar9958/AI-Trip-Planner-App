@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [initialLoad, setInitialLoad] = useState(true);
 
     useEffect(() => {
         try {
@@ -26,7 +27,11 @@ export const AuthProvider = ({ children }) => {
         try {
             const unsub = onAuthStateChanged(auth, (user) => {
                 setUser(user);
-                setLoading(false);
+                // Only set loading to false on initial load
+                if (initialLoad) {
+                    setLoading(false);
+                    setInitialLoad(false);
+                }
             });
             return () => {
                 try {
@@ -39,12 +44,13 @@ export const AuthProvider = ({ children }) => {
             console.error('Error setting up auth state listener:', err);
             setError(err);
             setLoading(false);
+            setInitialLoad(false);
         }
-    }, []);
+    }, [initialLoad]);
 
     const promptAsync = async () => {
         try {
-            setError(null);
+            setError(null); // Clear previous errors
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
             const idToken = response.data?.idToken;
@@ -52,11 +58,14 @@ export const AuthProvider = ({ children }) => {
             if (idToken) {
                 const credential = GoogleAuthProvider.credential(idToken);
                 await signInWithCredential(auth, credential);
+                // Clear error on success
+                setError(null);
             } else {
                 const errorMsg = "No ID token found in Google Sign-In response";
                 console.error(errorMsg);
-                setError(new Error(errorMsg));
-                throw new Error(errorMsg);
+                const err = new Error(errorMsg);
+                setError(err);
+                throw err;
             }
         } catch (error) {
             console.error("Google Sign-In Error:", error);
@@ -67,9 +76,11 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            setError(null);
+            setError(null); // Clear previous errors
             await GoogleSignin.signOut();
             await signOut(auth);
+            // Clear error on success
+            setError(null);
         } catch (error) {
             console.error("Logout Error:", error);
             setError(error);
