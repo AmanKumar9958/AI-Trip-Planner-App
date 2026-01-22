@@ -63,9 +63,9 @@ function TabLayoutContent() {
             }}
         />
         <Tabs.Screen
-            name="explore"
+            name="generate"
             options={{
-            tabBarLabel: 'Explore',
+            tabBarLabel: 'Generate',
             tabBarIcon: ({ color, size }) => (
                 <Ionicons name="map" size={size} color={color} />
             ),
