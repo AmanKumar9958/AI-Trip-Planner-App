@@ -16,6 +16,7 @@ import { useAuth } from "../../Context/AuthContext";
 import { useTabBar } from "../../Context/TabBarContext";
 import { useTheme } from "../../Context/ThemeContext";
 import { db } from "../../Firebase/FirebaseConfig";
+import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
 
 const popularDestinations = [
@@ -47,6 +48,13 @@ const popularDestinations = [
       uri: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1000&auto=format&fit=crop",
     },
   },
+  {
+    id: 5,
+    name: "Paris, France",
+    image: {
+      uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
+    },
+  },
 ];
 
 const Home = () => {
@@ -54,6 +62,7 @@ const Home = () => {
   const { theme, updateTheme } = useTheme();
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const router = useRouter();
   const { setIsTabBarVisible } = useTabBar();
   const lastContentOffset = useRef(0);
@@ -112,27 +121,21 @@ const Home = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: async () => {
-          try {
-            await logout();
-            if (router && router.replace) {
-              router.replace("/");
-            }
-          } catch (error) {
-            console.error("Error during logout:", error);
-            Alert.alert("Error", "Failed to logout. Please try again.");
-          }
-        },
-        style: "destructive",
-      },
-    ]);
+    setShowLogoutAlert(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      await logout();
+      setShowLogoutAlert(false);
+      if (router && router.replace) {
+        router.replace("/");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      setShowLogoutAlert(false);
+      Alert.alert("Error", "Failed to logout. Please try again.");
+    }
   };
 
   const handleNavigateToExplore = () => {
@@ -314,6 +317,15 @@ const Home = () => {
             </View>
           </View>
         </ScrollView>
+        <CustomAlert
+          visible={showLogoutAlert}
+          title="Sign Out"
+          message="Are you sure you want to sign out of your account?"
+          onCancel={() => setShowLogoutAlert(false)}
+          onConfirm={confirmLogout}
+          confirmText="Sign Out"
+          icon="log-out-outline"
+        />
       </SafeAreaView>
     </PageTransition>
   );
