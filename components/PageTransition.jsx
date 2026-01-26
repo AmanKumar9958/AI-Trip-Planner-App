@@ -1,12 +1,10 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef } from 'react';
 import { Animated, Dimensions } from 'react-native';
-import { useTheme } from '../Context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 export default function PageTransition({ children }) {
-    const { theme } = useTheme();
     const slideAnim = useRef(new Animated.Value(width)).current;
 
     useFocusEffect(
@@ -25,7 +23,7 @@ export default function PageTransition({ children }) {
     );
 
     return (
-        <Animated.View style={{ flex: 1, transform: [{ translateX: slideAnim }], backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
+        <Animated.View style={{ flex: 1, transform: [{ translateX: slideAnim }] }}>
             {children}
         </Animated.View>
     );
