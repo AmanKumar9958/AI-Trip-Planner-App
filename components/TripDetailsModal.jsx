@@ -230,7 +230,9 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                   >
                     <View className="absolute -left-[9px] -top-1 w-4 h-4 rounded-full bg-orange-500" />
                     <Text className="text-lg font-bold text-orange-500 mb-2">
-                      {details.Day ? `Day ${details.Day}` : `Day ${index + 1}`}
+                      {details.Day?.toString().includes("Day")
+                        ? details.Day
+                        : `Day ${details.Day || index + 1}`}
                     </Text>
 
                     {/* Render Activities */}
