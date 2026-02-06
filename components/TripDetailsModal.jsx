@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useEffect, useRef } from "react";
 import {
     Animated,
     Dimensions,
-    Image,
     Linking,
     Modal,
     PanResponder,
@@ -131,7 +131,8 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                 uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
               }}
               className="w-full h-full"
-              resizeMode="cover"
+              contentFit="cover"
+              transition={500}
             />
             <View className="absolute top-2 left-0 right-0 items-center z-10">
               <View className="w-12 h-1.5 bg-white/50 rounded-full" />
@@ -179,6 +180,8 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                             "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop",
                         }}
                         className="w-full h-32"
+                        contentFit="cover"
+                        transition={500}
                       />
                       <View className="p-3">
                         {/* FIX: Handle PascalCase keys often returned by AI */}

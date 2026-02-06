@@ -1,6 +1,7 @@
-import { ResizeMode, Video } from 'expo-av';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { ResizeMode, Video } from "expo-av";
+import { Image } from "expo-image";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 export default function CustomSplashScreen({ onFinish }) {
   const [isReady, setReady] = useState(false);
@@ -21,10 +22,13 @@ export default function CustomSplashScreen({ onFinish }) {
   };
 
   return (
-    <View style={[StyleSheet.absoluteFill, { zIndex: 9999 }]} className="bg-[#ededed] flex-1 justify-center items-center">
+    <View
+      style={[StyleSheet.absoluteFill, { zIndex: 9999 }]}
+      className="bg-[#ededed] flex-1 justify-center items-center"
+    >
       <Video
-        source={require('../assets/videos/Trip_Genius_Loading.mp4')}
-        style={{ width: '100%', height: '60%' }}
+        source={require("../assets/videos/Trip_Genius_Loading.mp4")}
+        style={{ width: "100%", height: "60%" }}
         resizeMode={ResizeMode.CONTAIN}
         shouldPlay={hasMinTimeElapsed}
         rate={2.5}
@@ -32,12 +36,13 @@ export default function CustomSplashScreen({ onFinish }) {
         onPlaybackStatusUpdate={handleVideoStatusUpdate}
         onReadyForDisplay={() => setReady(true)}
       />
-      
+
       {(!isReady || !hasMinTimeElapsed) && (
         <Image
-          source={require('../assets/images/splash.png')}
-          style={[StyleSheet.absoluteFill, { backgroundColor: 'white' }]}
-          resizeMode="contain"
+          source={require("../assets/images/splash.png")}
+          style={[StyleSheet.absoluteFill, { backgroundColor: "white" }]}
+          contentFit="contain"
+          transition={500}
         />
       )}
     </View>

@@ -1,16 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useCallback, useRef, useState } from "react";
-import {
-    Alert,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../Context/AuthContext";
 import { useTabBar } from "../../Context/TabBarContext";
@@ -191,6 +185,8 @@ const Home = () => {
                       "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                   }}
                   className="w-full h-full"
+                  contentFit="cover"
+                  transition={500}
                 />
               </View>
             </TouchableOpacity>
@@ -266,7 +262,8 @@ const Home = () => {
                         uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
                       }}
                       className="w-full h-40 rounded-2xl mb-3"
-                      resizeMode="cover"
+                      contentFit="cover"
+                      transition={500}
                     />
                     <Text
                       className="text-lg font-bold text-black dark:text-white"
@@ -305,7 +302,8 @@ const Home = () => {
                   <Image
                     source={item.image}
                     className="w-full h-full"
-                    resizeMode="cover"
+                    contentFit="cover"
+                    transition={500}
                   />
                   <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/20">
                     <Text className="text-white font-bold text-lg shadow-sm">

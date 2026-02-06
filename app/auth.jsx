@@ -1,4 +1,5 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../Context/AuthContext";
 
 const auth = () => {
@@ -10,7 +11,8 @@ const auth = () => {
         <Image
           source={require("../assets/images/auth-image.png")}
           className="w-full h-full"
-          resizeMode="cover"
+          contentFit="cover"
+          transition={500}
         />
       </View>
 
@@ -31,6 +33,7 @@ const auth = () => {
           <Image
             source={require("../assets/images/google.png")}
             style={{ width: 24, height: 24, marginRight: 8 }}
+            contentFit="contain"
           />
           <Text className="text-black text-lg font-medium">
             Continue with Google
