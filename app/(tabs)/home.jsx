@@ -12,6 +12,7 @@ import { useTheme } from "../../Context/ThemeContext";
 import { db } from "../../Firebase/FirebaseConfig";
 import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
+import Skeleton from "../../components/Skeleton";
 
 const popularDestinations = [
   {
@@ -184,6 +185,7 @@ const Home = () => {
                       user?.photoURL ||
                       "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                   }}
+                  style={{ width: "100%", height: "100%" }}
                   className="w-full h-full"
                   contentFit="cover"
                   transition={500}
@@ -243,7 +245,31 @@ const Home = () => {
               />
             </TouchableOpacity>
 
-            {userTrips.length === 0 ? (
+            {loading ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="overflow-hidden"
+              >
+                {[1, 2, 3].map((item) => (
+                  <View key={item} className="mr-5 w-64">
+                    <Skeleton
+                      width="100%"
+                      height={160}
+                      borderRadius={16}
+                      style={{ marginBottom: 12 }}
+                    />
+                    <Skeleton
+                      width={180}
+                      height={20}
+                      borderRadius={4}
+                      style={{ marginBottom: 6 }}
+                    />
+                    <Skeleton width={120} height={14} borderRadius={4} />
+                  </View>
+                ))}
+              </ScrollView>
+            ) : userTrips.length === 0 ? (
               <View className="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 items-center">
                 <Text className="text-gray-500 dark:text-gray-400 text-center">
                   No trips planned yet
@@ -261,7 +287,8 @@ const Home = () => {
                       source={{
                         uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
                       }}
-                      className="w-full h-40 rounded-2xl mb-3"
+                      style={{ width: "100%", height: 160 }}
+                      className="w-full h-40 rounded-3xl mb-3"
                       contentFit="cover"
                       transition={500}
                     />
@@ -301,6 +328,7 @@ const Home = () => {
                 >
                   <Image
                     source={item.image}
+                    style={{ width: "100%", height: "100%" }}
                     className="w-full h-full"
                     contentFit="cover"
                     transition={500}

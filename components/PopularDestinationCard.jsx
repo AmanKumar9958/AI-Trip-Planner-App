@@ -6,6 +6,7 @@ export default function PopularDestinationCard({ item }) {
     <View className="mr-4 relative rounded-2xl overflow-hidden w-40 h-60">
       <Image
         source={item.image}
+        style={{ width: "100%", height: "100%" }}
         className="w-full h-full absolute"
         contentFit="cover"
         transition={500}

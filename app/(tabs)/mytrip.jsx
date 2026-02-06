@@ -1,22 +1,22 @@
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import {
-    collection,
-    deleteDoc,
-    doc,
-    getDocs,
-    query,
-    where,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Share,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Share,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +26,7 @@ import { useTheme } from "../../Context/ThemeContext";
 import { db } from "../../Firebase/FirebaseConfig";
 import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
+import Skeleton from "../../components/Skeleton";
 import TripDetailsModal from "../../components/TripDetailsModal";
 
 const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
@@ -276,7 +277,22 @@ Open the app to view full itinerary.`,
           </View>
 
           {loading ? (
-            <ActivityIndicator size="large" color="#f97316" className="mt-10" />
+            <View className="mt-2">
+              {[1, 2, 3, 4, 5].map((item) => (
+                <View
+                  key={item}
+                  className="mb-6 rounded-2xl p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900"
+                >
+                  <Skeleton
+                    width="70%"
+                    height={24}
+                    borderRadius={6}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <Skeleton width="40%" height={16} borderRadius={4} />
+                </View>
+              ))}
+            </View>
           ) : userTrips.length === 0 ? (
             <View className="flex-1 justify-center items-center">
               <Text className="text-xl font-bold text-gray-400 dark:text-gray-500">

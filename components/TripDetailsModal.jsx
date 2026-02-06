@@ -13,6 +13,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import Skeleton from "./Skeleton";
 
 export default function TripDetailsModal({ trip, isVisible, onClose }) {
   const pan = useRef(new Animated.ValueXY()).current;
@@ -126,10 +127,17 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
         >
           {/* Header Image */}
           <View {...panResponder.panHandlers} className="h-60 w-full relative">
+            {" "}
+            <Skeleton
+              width="100%"
+              height="100%"
+              style={{ position: "absolute" }}
+            />{" "}
             <Image
               source={{
                 uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
               }}
+              style={{ width: "100%", height: "100%" }}
               className="w-full h-full"
               contentFit="cover"
               transition={500}
@@ -172,17 +180,25 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                       onPress={() => openMap(hotel)}
                       className="mr-4 w-60 bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700"
                     >
-                      <Image
-                        // Use a fallback image if specific hotel image is missing
-                        source={{
-                          uri:
-                            hotel?.ImageUrl ||
-                            "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop",
-                        }}
-                        className="w-full h-32"
-                        contentFit="cover"
-                        transition={500}
-                      />
+                      <View className="w-full h-32 relative">
+                        <Skeleton
+                          width="100%"
+                          height="100%"
+                          style={{ position: "absolute" }}
+                        />
+                        <Image
+                          // Use a fallback image if specific hotel image is missing
+                          source={{
+                            uri:
+                              hotel?.ImageUrl ||
+                              "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop",
+                          }}
+                          style={{ width: "100%", height: "100%" }}
+                          className="w-full h-full"
+                          contentFit="cover"
+                          transition={500}
+                        />
+                      </View>
                       <View className="p-3">
                         {/* FIX: Handle PascalCase keys often returned by AI */}
                         <Text
