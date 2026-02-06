@@ -24,6 +24,7 @@ import { useAuth } from "../../Context/AuthContext";
 import { useTabBar } from "../../Context/TabBarContext";
 import { useTheme } from "../../Context/ThemeContext";
 import { db } from "../../Firebase/FirebaseConfig";
+import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
 import TripDetailsModal from "../../components/TripDetailsModal";
 
@@ -133,6 +134,15 @@ export default function MyTrip() {
   const [loading, setLoading] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    cancelText: "Cancel",
+    confirmText: "",
+    onConfirm: null,
+    confirmButtonStyle: "default",
+  });
 
   const GetMyTrips = async () => {
     setLoading(true);
@@ -182,28 +192,31 @@ export default function MyTrip() {
     try {
       await deleteDoc(doc(db, "AI Trips", tripId));
       setUserTrips((prev) => prev.filter((t) => t.id !== tripId));
+      setAlertConfig((prev) => ({ ...prev, visible: false })); // Close alert on success
     } catch (error) {
       console.error("Error deleting trip:", error);
-      Alert.alert(
-        "Delete Failed",
-        "Could not delete the trip. Please try again.",
-      );
+      setAlertConfig({
+        visible: true,
+        title: "Delete Failed",
+        message: "Could not delete the trip. Please try again.",
+        cancelText: "OK",
+        confirmText: "",
+        onCancel: () => setAlertConfig((prev) => ({ ...prev, visible: false })),
+      });
     }
   };
 
   const confirmDelete = (tripId, locationLabel) => {
-    Alert.alert(
-      "Delete Trip",
-      `Are you sure you want to delete ${locationLabel || "this trip"}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => deleteTrip(tripId),
-        },
-      ],
-    );
+    setAlertConfig({
+      visible: true,
+      title: "Delete Trip",
+      message: `Are you sure you want to delete ${locationLabel || "this trip"}?`,
+      cancelText: "Cancel",
+      confirmText: "Delete",
+      confirmButtonStyle: "destructive",
+      onCancel: () => setAlertConfig((prev) => ({ ...prev, visible: false })),
+      onConfirm: () => deleteTrip(tripId),
+    });
   };
 
   const shareTrip = async (trip) => {
@@ -297,6 +310,17 @@ Open the app to view full itinerary.`,
           trip={selectedTrip}
           isVisible={modalVisible}
           onClose={() => setModalVisible(false)}
+        />
+
+        <CustomAlert
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          cancelText={alertConfig.cancelText}
+          confirmText={alertConfig.confirmText}
+          confirmButtonStyle={alertConfig.confirmButtonStyle}
+          onCancel={alertConfig.onCancel}
+          onConfirm={alertConfig.onConfirm}
         />
       </SafeAreaView>
     </PageTransition>

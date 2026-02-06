@@ -52,27 +52,31 @@ const CustomAlert = ({
 
           {/* Buttons */}
           <View className="flex-row gap-3">
-            <TouchableOpacity
-              onPress={onCancel}
-              className={`flex-1 py-3.5 rounded-2xl border ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
-            >
-              <Text
-                className={`text-center font-semibold ${isDark ? "text-white" : "text-gray-700"}`}
+            {cancelText ? (
+              <TouchableOpacity
+                onPress={onCancel}
+                className={`flex-1 py-3.5 rounded-2xl border ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
               >
-                {cancelText}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  className={`text-center font-semibold ${isDark ? "text-white" : "text-gray-700"}`}
+                >
+                  {cancelText}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
 
-            <TouchableOpacity
-              onPress={onConfirm}
-              className={`flex-1 py-3.5 rounded-2xl ${confirmButtonStyle === "destructive" ? "bg-red-500" : "bg-black dark:bg-white"}`}
-            >
-              <Text
-                className={`text-center font-bold ${confirmButtonStyle === "destructive" ? "text-white" : isDark ? "text-black" : "text-white"}`}
+            {confirmText ? (
+              <TouchableOpacity
+                onPress={onConfirm}
+                className={`flex-1 py-3.5 rounded-2xl ${confirmButtonStyle === "destructive" ? "bg-red-500" : "bg-black dark:bg-white"}`}
               >
-                {confirmText}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  className={`text-center font-bold ${confirmButtonStyle === "destructive" ? "text-white" : isDark ? "text-black" : "text-white"}`}
+                >
+                  {confirmText}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         </View>
       </View>
