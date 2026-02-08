@@ -1,15 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { chatSession } from "../../AI/Modal";
@@ -148,6 +148,29 @@ export default function Explore() {
     setLoading(true);
 
     try {
+      // Check Daily Limit
+      const userUsageRef = doc(db, "UserDailyUsage", user.email);
+      const userUsageSnap = await getDoc(userUsageRef);
+      const todayDate = new Date().toLocaleDateString();
+
+      if (userUsageSnap.exists()) {
+        const data = userUsageSnap.data();
+        if (data.date === todayDate && data.count >= 1) {
+          setLoading(false);
+          setAlertConfig({
+            visible: true,
+            title: "Limit Reached",
+            message:
+              "Currently, you can only generate 1 trip and future updates will include generating more trips",
+            onCancel: () =>
+              setAlertConfig((prev) => ({ ...prev, visible: false })),
+            cancelText: "OK",
+            confirmText: "",
+          });
+          return;
+        }
+      }
+
       let budgetValue = selectedBudget?.budget;
       let budgetRules = "";
 
@@ -220,6 +243,15 @@ export default function Explore() {
         tripData: tripData,
         userEmailID: user.email,
         id: docId,
+      });
+
+      // Update Daily Usage
+      await setDoc(userUsageRef, {
+        date: todayDate,
+        count:
+          userUsageSnap.exists() && userUsageSnap.data().date === todayDate
+            ? userUsageSnap.data().count + 1
+            : 1,
       });
 
       setLoading(false);

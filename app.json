@@ -3,7 +3,7 @@
     "name": "Trip Genius",
     "slug": "AI-Trip-Planner-App",
     "owner": "codewithaman",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Trip_Genius_Icon.png",
     "splash": {
