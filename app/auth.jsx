@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../Context/AuthContext";
 
-const auth = () => {
+const Auth = () => {
   const { promptAsync } = useAuth();
   return (
     <View className="flex-1 bg-blue-100 items-center justify-start rounded-2xl overflow-hidden">
@@ -51,4 +51,4 @@ const auth = () => {
   );
 };
 
-export default auth;
+export default Auth;

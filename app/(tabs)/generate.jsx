@@ -3,13 +3,13 @@ import { useRouter } from "expo-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { chatSession } from "../../AI/Modal";
@@ -45,6 +45,7 @@ export default function Explore() {
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [customBudget, setCustomBudget] = useState("");
   const [selectedTraveler, setSelectedTraveler] = useState(null);
+  const [includeHotel, setIncludeHotel] = useState(true);
   const [loading, setLoading] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     visible: false,
@@ -173,6 +174,9 @@ export default function Explore() {
 
       let budgetValue = selectedBudget?.budget;
       let budgetRules = "";
+      const hotelRules = includeHotel
+        ? "Provide at least 3 entries in HotelOptions, with realistic values."
+        : "Set HotelOptions to an empty array [] and do not recommend hotels or accommodation. Assume the traveler returns home each evening.";
 
       if (customBudget) {
         budgetValue = `${customBudget}`;
@@ -194,7 +198,9 @@ export default function Explore() {
         .replace("{totalDays}", duration)
         .replace("{traveler}", selectedTraveler.people)
         .replace("{budget}", budgetValue)
-        .replace("{budgetRules}", budgetRules);
+        .replace("{budgetRules}", budgetRules)
+        .replace("{includeHotel}", includeHotel ? "Yes" : "No")
+        .replace("{hotelRules}", hotelRules);
 
       // console.log("Sending Prompt:", finalPrompt);
 
@@ -239,6 +245,7 @@ export default function Explore() {
           TotalDays: duration,
           budget: budgetValue,
           TravelingWith: selectedTraveler.people,
+          IncludeHotel: includeHotel,
         },
         tripData: tripData,
         userEmailID: user.email,
@@ -263,6 +270,7 @@ export default function Explore() {
       setSelectedBudget(null);
       setCustomBudget("");
       setSelectedTraveler(null);
+      setIncludeHotel(true);
 
       // Navigate to my trips page
       if (router && router.push) {
@@ -416,6 +424,55 @@ export default function Explore() {
                 </TouchableOpacity>
               </View>
             </View>
+          </View>
+
+          {/* Hotel */}
+          <View className="mb-8">
+            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+              Do you need a hotel?
+            </Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => setIncludeHotel(true)}
+                className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
+                  includeHotel
+                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <Text
+                  className={`font-bold text-lg ${
+                    includeHotel
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-black dark:text-white"
+                  }`}
+                >
+                  Yes
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setIncludeHotel(false)}
+                className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
+                  !includeHotel
+                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <Text
+                  className={`font-bold text-lg ${
+                    !includeHotel
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-black dark:text-white"
+                  }`}
+                >
+                  No
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Choose “No” for same-city or day trips.
+            </Text>
           </View>
 
           {/* Budget */}
