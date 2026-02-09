@@ -26,6 +26,7 @@ export const SelectMembers = [
 export const AI_PROMPT = `
 Generate a detailed travel itinerary for a trip to "{location}" for "{totalDays}" days, traveling with "{traveler}", with a budget of "{budget}".
 Hotel required: "{includeHotel}".
+Include travel allowance: "{includeTravelAllowance}".
 
 Return output ONLY as strict JSON with EXACT key names and types as below. Do not include markdown code fences or any extra text.
 
@@ -61,6 +62,7 @@ Rules:
 - Provide exactly {totalDays} days in Itinerary (Day 1 .. Day {totalDays}).
 - Keep all key names exactly as shown.
 - {hotelRules}
+- {travelAllowanceRules}
 - Do not include any text outside the JSON object.
 - {budgetRules}
 `;

@@ -46,6 +46,7 @@ export default function Explore() {
   const [customBudget, setCustomBudget] = useState("");
   const [selectedTraveler, setSelectedTraveler] = useState(null);
   const [includeHotel, setIncludeHotel] = useState(true);
+  const [includeTravelAllowance, setIncludeTravelAllowance] = useState(false);
   const [loading, setLoading] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     visible: false,
@@ -177,6 +178,9 @@ export default function Explore() {
       const hotelRules = includeHotel
         ? "Provide at least 3 entries in HotelOptions, with realistic values."
         : "Set HotelOptions to an empty array [] and do not recommend hotels or accommodation. Assume the traveler returns home each evening.";
+      const travelAllowanceRules = includeTravelAllowance
+        ? "Include travel/transportation costs (getting around and any inter-city travel) in the overall budget guidance."
+        : "Do not include inter-city travel costs (flights, trains, long-distance cabs) in the budget. Keep recommendations focused on on-ground expenses like tickets, food, and local transport.";
 
       if (customBudget) {
         budgetValue = `${customBudget}`;
@@ -200,7 +204,12 @@ export default function Explore() {
         .replace("{budget}", budgetValue)
         .replace("{budgetRules}", budgetRules)
         .replace("{includeHotel}", includeHotel ? "Yes" : "No")
-        .replace("{hotelRules}", hotelRules);
+        .replace("{hotelRules}", hotelRules)
+        .replace(
+          "{includeTravelAllowance}",
+          includeTravelAllowance ? "Yes" : "No",
+        )
+        .replace("{travelAllowanceRules}", travelAllowanceRules);
 
       // console.log("Sending Prompt:", finalPrompt);
 
@@ -246,6 +255,7 @@ export default function Explore() {
           budget: budgetValue,
           TravelingWith: selectedTraveler.people,
           IncludeHotel: includeHotel,
+          IncludeTravelAllowance: includeTravelAllowance,
         },
         tripData: tripData,
         userEmailID: user.email,
@@ -271,6 +281,7 @@ export default function Explore() {
       setCustomBudget("");
       setSelectedTraveler(null);
       setIncludeHotel(true);
+      setIncludeTravelAllowance(false);
 
       // Navigate to my trips page
       if (router && router.push) {
@@ -514,7 +525,11 @@ export default function Explore() {
               <Text className="text-lg font-medium text-black dark:text-white mb-2">
                 Or enter a specific amount{" "}
                 <Text className="text-sm font-medium text-red-500 dark:text-red-500 mb-2">
-                  (Do not include travel expenses)
+                  (
+                  {includeTravelAllowance
+                    ? "Include travel expenses"
+                    : "Do not include travel expenses"}
+                  )
                 </Text>
               </Text>
               <TextInput
@@ -529,6 +544,55 @@ export default function Explore() {
                 }}
               />
             </View>
+          </View>
+
+          {/* Travel Allowance */}
+          <View className="mb-8">
+            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+              Include travel allowance?
+            </Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => setIncludeTravelAllowance(true)}
+                className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
+                  includeTravelAllowance
+                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <Text
+                  className={`font-bold text-lg ${
+                    includeTravelAllowance
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-black dark:text-white"
+                  }`}
+                >
+                  Yes
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setIncludeTravelAllowance(false)}
+                className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
+                  !includeTravelAllowance
+                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <Text
+                  className={`font-bold text-lg ${
+                    !includeTravelAllowance
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-black dark:text-white"
+                  }`}
+                >
+                  No
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Turn on if you want travel/transport included.
+            </Text>
           </View>
 
           {/* Travelers */}
