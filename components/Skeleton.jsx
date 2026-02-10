@@ -28,7 +28,7 @@ const Skeleton = ({ width, height, style, borderRadius = 12 }) => {
   return (
     <Animated.View
       style={[{ width, height, borderRadius }, style, animatedStyle]}
-      className="bg-gray-300 dark:bg-gray-700"
+      className="bg-app-skeleton dark:bg-app-dark-skeleton"
     />
   );
 };

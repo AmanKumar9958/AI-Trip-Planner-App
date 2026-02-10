@@ -13,9 +13,14 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useTheme } from "../Context/ThemeContext";
+import themeColors from "../lib/themeColors.json";
 import Skeleton from "./Skeleton";
 
 export default function TripDetailsModal({ trip, isVisible, onClose }) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === "dark";
+  const palette = isDark ? themeColors.dark : themeColors.light;
   const pan = useRef(new Animated.ValueXY()).current;
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
           key={i}
           name={i < Math.floor(rating || 0) ? "star" : "star-outline"}
           size={16}
-          color="#F59E0B"
+          color={palette.star}
         />,
       );
     }
@@ -122,7 +127,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
             },
             pan.getLayout(),
           ]}
-          className="bg-white dark:bg-gray-900 h-[90%] rounded-t-3xl overflow-hidden"
+          className="bg-app-surface dark:bg-app-dark-surface h-[90%] rounded-t-3xl overflow-hidden"
           paddingBottom={50}
         >
           {/* Header Image */}
@@ -155,7 +160,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
               <Text className="text-3xl font-bold text-white">
                 {trip.userSelection?.Location || "Trip Details"}
               </Text>
-              <Text className="text-gray-200">
+              <Text className="text-white/90">
                 {trip.userSelection?.TotalDays} Days •{" "}
                 {trip.userSelection?.TravelingWith} •{" "}
                 {trip.userSelection?.budget}
@@ -170,7 +175,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
             {/* Hotels Section */}
             {hotels.length > 0 && (
               <View className="mb-6">
-                <Text className="text-xl font-bold text-black dark:text-white mb-4">
+                <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-4">
                   Recommended Hotels
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -178,7 +183,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                     <TouchableOpacity
                       key={index}
                       onPress={() => openMap(hotel)}
-                      className="mr-4 w-60 bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700"
+                      className="mr-4 w-60 bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-xl overflow-hidden border border-app-border dark:border-app-dark-border"
                     >
                       <View className="w-full h-32 relative">
                         <Skeleton
@@ -202,19 +207,19 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                       <View className="p-3">
                         {/* FIX: Handle PascalCase keys often returned by AI */}
                         <Text
-                          className="font-bold text-lg text-black dark:text-white mb-1"
+                          className="font-bold text-lg text-app-text dark:text-app-dark-text mb-1"
                           numberOfLines={1}
                         >
                           {hotel.HotelName || hotel.hotel_name}
                         </Text>
                         <Text
-                          className="text-gray-500 dark:text-gray-400 text-xs mb-2"
+                          className="text-app-muted-text dark:text-app-dark-muted-text text-xs mb-2"
                           numberOfLines={2}
                         >
                           {hotel.HotelAddress || hotel.hotel_address}
                         </Text>
                         <View className="flex-row justify-between items-center">
-                          <Text className="text-orange-500 font-bold">
+                          <Text className="text-app-primary dark:text-app-dark-primary font-bold">
                             {hotel.Price || hotel.price}
                           </Text>
                           {renderStars(hotel.Rating || hotel.rating)}
@@ -231,7 +236,7 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
             {(Array.isArray(itinerary) ? itinerary : Object.values(itinerary))
               .length > 0 && (
               <View className="mb-2">
-                <Text className="text-xl font-bold text-black dark:text-white mb-4">
+                <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-4">
                   Day-wise Itinerary
                 </Text>
 
@@ -245,24 +250,24 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                 ).map((details, index) => (
                   <View
                     key={index}
-                    className="mb-6 ml-4 border-l-2 border-orange-200 pl-6 relative"
+                    className="mb-6 ml-4 border-l-2 border-app-primary/30 dark:border-app-dark-primary/30 pl-6 relative"
                   >
-                    <View className="absolute -left-[9px] -top-1 w-4 h-4 rounded-full bg-orange-500" />
-                    <Text className="text-lg font-bold text-orange-500 mb-2">
+                    <View className="absolute -left-[9px] -top-1 w-4 h-4 rounded-full bg-app-primary dark:bg-app-dark-primary" />
+                    <Text className="text-lg font-bold text-app-primary dark:text-app-dark-primary mb-2">
                       {details.Day?.toString().includes("Day")
                         ? details.Day
                         : `Day ${details.Day || index + 1}`}
                     </Text>
 
                     {/* Render Activities */}
-                    <View className="mb-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                      <Text className="font-bold text-base text-black dark:text-white mb-1">
+                    <View className="mb-4 bg-app-surface-alt dark:bg-app-dark-surface-alt p-4 rounded-xl border border-app-border dark:border-app-dark-border">
+                      <Text className="font-bold text-base text-app-text dark:text-app-dark-text mb-1">
                         {details.PlaceName ||
                           details.place_name ||
                           details.Activity ||
                           "Activity"}
                       </Text>
-                      <Text className="text-gray-500 dark:text-gray-400 text-sm mb-2">
+                      <Text className="text-app-muted-text dark:text-app-dark-muted-text text-sm mb-2">
                         {details.PlaceDetails ||
                           details.place_details ||
                           details.Details ||
@@ -276,9 +281,9 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                             <Ionicons
                               name="time-outline"
                               size={16}
-                              color="gray"
+                              color={palette.mutedText}
                             />
-                            <Text className="text-gray-500 text-xs ml-2">
+                            <Text className="text-app-muted-text dark:text-app-dark-muted-text text-xs ml-2">
                               Best Time:{" "}
                               {details.BestTimeToVisit ||
                                 details.best_time_to_visit}
@@ -291,10 +296,10 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                             <Ionicons
                               name="ticket-outline"
                               size={16}
-                              color="gray"
+                              color={palette.mutedText}
                             />
                             <Text
-                              className="text-gray-500 text-xs ml-2"
+                              className="text-app-muted-text dark:text-app-dark-muted-text text-xs ml-2"
                               numberOfLines={3}
                             >
                               {details.TicketPricing || details.ticket_pricing}
@@ -310,9 +315,9 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
                             <Ionicons
                               name="navigate-circle-outline"
                               size={16}
-                              color="gray"
+                              color={palette.mutedText}
                             />
-                            <Text className="text-gray-500 text-xs ml-2">
+                            <Text className="text-app-muted-text dark:text-app-dark-muted-text text-xs ml-2">
                               {details.TravelTime ||
                                 details.travel_time ||
                                 details.Time ||
@@ -329,10 +334,10 @@ export default function TripDetailsModal({ trip, isVisible, onClose }) {
           </ScrollView>
 
           {/* Footer Button */}
-          {/* <View className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+          {/* <View className="absolute bottom-0 left-0 right-0 p-5 bg-app-surface dark:bg-app-dark-surface border-t border-app-border dark:border-app-dark-border">
                     <TouchableOpacity 
                         onPress={onClose}
-                        className="bg-orange-500 py-4 rounded-full flex items-center justify-center"
+                  className="bg-app-primary dark:bg-app-dark-primary py-4 rounded-full flex items-center justify-center"
                     >
                         <Text className="text-white font-bold text-xl" numberOfLines={1}>Close Details</Text>
                     </TouchableOpacity>

@@ -1,11 +1,16 @@
 import { ResizeMode, Video } from "expo-av";
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Appearance, StyleSheet, View } from "react-native";
+import themeColors from "../lib/themeColors.json";
 
 export default function CustomSplashScreen({ onFinish }) {
   const [isReady, setReady] = useState(false);
   const [hasMinTimeElapsed, setHasMinTimeElapsed] = useState(false);
+  const scheme =
+    Appearance.getColorScheme() === "dark"
+      ? themeColors.dark
+      : themeColors.light;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,8 +28,11 @@ export default function CustomSplashScreen({ onFinish }) {
 
   return (
     <View
-      style={[StyleSheet.absoluteFill, { zIndex: 9999 }]}
-      className="bg-[#ededed] flex-1 justify-center items-center"
+      style={[
+        StyleSheet.absoluteFill,
+        { zIndex: 9999, backgroundColor: scheme.bg },
+      ]}
+      className="flex-1 justify-center items-center"
     >
       <Video
         source={require("../assets/videos/Trip_Genius_Loading.mp4")}
@@ -40,7 +48,7 @@ export default function CustomSplashScreen({ onFinish }) {
       {(!isReady || !hasMinTimeElapsed) && (
         <Image
           source={require("../assets/images/splash.png")}
-          style={[StyleSheet.absoluteFill, { backgroundColor: "white" }]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: scheme.surface }]}
           contentFit="contain"
           transition={500}
         />

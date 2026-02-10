@@ -19,10 +19,13 @@ import { useAuth } from "../../Context/AuthContext";
 import { useTabBar } from "../../Context/TabBarContext";
 import { useTheme } from "../../Context/ThemeContext";
 import { db } from "../../Firebase/FirebaseConfig";
+import themeColors from "../../lib/themeColors.json";
 import { AI_PROMPT, SelectBudget, SelectMembers } from "../../Options/options";
 
 export default function Explore() {
-  const { theme, updateTheme } = useTheme();
+  const { colorScheme, updateTheme } = useTheme();
+  const isDark = colorScheme === "dark";
+  const palette = isDark ? themeColors.dark : themeColors.light;
   const { setIsTabBarVisible } = useTabBar();
   const { user } = useAuth();
   const router = useRouter();
@@ -59,7 +62,7 @@ export default function Explore() {
   const API_KEY = process.env.EXPO_PUBLIC_PLACE_API;
 
   const toggleTheme = () => {
-    updateTheme(theme === "dark" ? "light" : "dark");
+    updateTheme(isDark ? "light" : "dark");
   };
 
   const fetchSuggestions = async (q) => {
@@ -317,9 +320,7 @@ export default function Explore() {
 
   return (
     <PageTransition>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: theme === "dark" ? "#000" : "#fff" }}
-      >
+      <SafeAreaView style={{ flex: 1, backgroundColor: palette.bg }}>
         <ScrollView
           className="flex-1 px-5 pt-8"
           showsVerticalScrollIndicator={false}
@@ -330,34 +331,34 @@ export default function Explore() {
         >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-3xl font-bold text-black dark:text-white">
+            <Text className="text-3xl font-bold text-app-text dark:text-app-dark-text">
               Explore
             </Text>
             <TouchableOpacity onPress={toggleTheme}>
               <Ionicons
-                name={theme === "dark" ? "sunny" : "moon"}
+                name={isDark ? "sunny" : "moon"}
                 size={24}
-                color={theme === "dark" ? "white" : "black"}
+                color={palette.text}
               />
             </TouchableOpacity>
           </View>
 
           {/* Destination */}
           <View className="mb-8 z-50">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               Destination
             </Text>
-            <View className="flex-row items-center bg-gray-100 dark:bg-gray-900 rounded-2xl p-2 border border-gray-200 dark:border-gray-800 relative">
+            <View className="flex-row items-center bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-2xl p-2 border border-app-border dark:border-app-dark-border relative">
               <Ionicons
                 name="search"
                 size={24}
-                color="gray"
+                color={palette.mutedText}
                 style={{ marginRight: 10 }}
               />
               <TextInput
                 placeholder="Search Destination (e.g., India, Paris)..."
-                placeholderTextColor="gray"
-                className="flex-1 text-black dark:text-white text-base"
+                placeholderTextColor={palette.mutedText}
+                className="flex-1 text-app-text dark:text-app-dark-text text-base"
                 value={destination}
                 onChangeText={handleInputChange}
               />
@@ -369,20 +370,24 @@ export default function Explore() {
                     setSelectedLocation(null);
                   }}
                 >
-                  <Ionicons name="close-circle" size={24} color="gray" />
+                  <Ionicons
+                    name="close-circle"
+                    size={24}
+                    color={palette.mutedText}
+                  />
                 </TouchableOpacity>
               )}
             </View>
 
             {suggestions.length > 0 && (
-              <View className="absolute top-20 left-0 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg z-50 max-h-60 overflow-hidden">
+              <View className="absolute top-20 left-0 right-0 bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-xl shadow-lg z-50 max-h-60 overflow-hidden">
                 {suggestions.map((item, index) => (
                   <TouchableOpacity
                     key={`${item.place_id}-${index}`}
                     onPress={() => handleSelectLocation(item)}
-                    className="p-3 border-b border-gray-100 dark:border-gray-800 active:bg-gray-100 dark:active:bg-gray-800"
+                    className="p-3 border-b border-app-border dark:border-app-dark-border active:bg-app-surface-alt dark:active:bg-app-dark-surface-alt"
                   >
-                    <Text className="text-black dark:text-white">
+                    <Text className="text-app-text dark:text-app-dark-text">
                       {item.display_name}
                     </Text>
                   </TouchableOpacity>
@@ -391,14 +396,14 @@ export default function Explore() {
             )}
 
             {selectedLocation && (
-              <View className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
-                <Text className="font-bold text-orange-600 dark:text-orange-400 mb-1">
+              <View className="mt-4 p-3 bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-xl border border-app-border dark:border-app-dark-border">
+                <Text className="font-bold text-app-primary dark:text-app-dark-primary mb-1">
                   Selected Location:
                 </Text>
-                <Text className="text-black dark:text-white font-medium">
+                <Text className="text-app-text dark:text-app-dark-text font-medium">
                   {selectedLocation.display_name}
                 </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <Text className="text-xs text-app-muted-text dark:text-app-dark-muted-text mt-1">
                   Lat: {selectedLocation.lat}, Lon: {selectedLocation.lon}
                 </Text>
               </View>
@@ -406,30 +411,30 @@ export default function Explore() {
           </View>
           {/* Duration */}
           <View className="mb-8">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               How many days?
             </Text>
-            <View className="flex-row justify-between items-center bg-gray-100 dark:bg-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-800">
-              <Text className="text-base font-medium text-black dark:text-white">
+            <View className="flex-row justify-between items-center bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-2xl p-4 border border-app-border dark:border-app-dark-border">
+              <Text className="text-base font-medium text-app-text dark:text-app-dark-text">
                 Duration
               </Text>
-              <View className="flex-row items-center bg-white dark:bg-black rounded-xl p-1">
+              <View className="flex-row items-center bg-app-surface dark:bg-app-dark-surface rounded-xl p-1">
                 <TouchableOpacity
                   onPress={() => handleDurationChange(-1)}
-                  className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg items-center justify-center"
+                  className="w-10 h-10 bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-lg items-center justify-center"
                 >
-                  <Text className="text-xl font-bold text-black dark:text-white">
+                  <Text className="text-xl font-bold text-app-text dark:text-app-dark-text">
                     -
                   </Text>
                 </TouchableOpacity>
-                <Text className="mx-4 text-lg font-bold text-black dark:text-white w-6 text-center">
+                <Text className="mx-4 text-lg font-bold text-app-text dark:text-app-dark-text w-6 text-center">
                   {duration}
                 </Text>
                 <TouchableOpacity
                   onPress={() => handleDurationChange(1)}
-                  className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg items-center justify-center"
+                  className="w-10 h-10 bg-app-primary dark:bg-app-dark-primary rounded-lg items-center justify-center"
                 >
-                  <Text className="text-xl font-bold text-orange-600 dark:text-orange-400">
+                  <Text className="text-xl font-bold text-app-on-primary dark:text-app-dark-on-primary">
                     +
                   </Text>
                 </TouchableOpacity>
@@ -439,7 +444,7 @@ export default function Explore() {
 
           {/* Hotel */}
           <View className="mb-8">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               Do you need a hotel?
             </Text>
             <View className="flex-row justify-between">
@@ -447,15 +452,15 @@ export default function Explore() {
                 onPress={() => setIncludeHotel(true)}
                 className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
                   includeHotel
-                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                    : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                 }`}
               >
                 <Text
                   className={`font-bold text-lg ${
                     includeHotel
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-black dark:text-white"
+                      ? "text-app-primary dark:text-app-dark-primary"
+                      : "text-app-text dark:text-app-dark-text"
                   }`}
                 >
                   Yes
@@ -466,29 +471,29 @@ export default function Explore() {
                 onPress={() => setIncludeHotel(false)}
                 className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
                   !includeHotel
-                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                    : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                 }`}
               >
                 <Text
                   className={`font-bold text-lg ${
                     !includeHotel
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-black dark:text-white"
+                      ? "text-app-primary dark:text-app-dark-primary"
+                      : "text-app-text dark:text-app-dark-text"
                   }`}
                 >
                   No
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <Text className="text-xs text-app-muted-text dark:text-app-dark-muted-text mt-2">
               Choose “No” for same-city or day trips.
             </Text>
           </View>
 
           {/* Budget */}
           <View className="mb-8">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               What is your budget?
             </Text>
             <View className="flex-row justify-between">
@@ -501,8 +506,8 @@ export default function Explore() {
                   }}
                   className={`w-[31%] p-4 rounded-2xl border items-center justify-center ${
                     selectedBudget?.budget === option.budget
-                      ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                      : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                      ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                      : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                   }`}
                 >
                   <View className="mb-2">
@@ -511,8 +516,8 @@ export default function Explore() {
                   <Text
                     className={`font-bold text-center ${
                       selectedBudget?.budget === option.budget
-                        ? "text-orange-600 dark:text-orange-400"
-                        : "text-black dark:text-white"
+                        ? "text-app-primary dark:text-app-dark-primary"
+                        : "text-app-text dark:text-app-dark-text"
                     }`}
                   >
                     {option.budget}
@@ -522,9 +527,9 @@ export default function Explore() {
             </View>
 
             <View className="mt-4">
-              <Text className="text-lg font-medium text-black dark:text-white mb-2">
+              <Text className="text-lg font-medium text-app-text dark:text-app-dark-text mb-2">
                 Or enter a specific amount{" "}
-                <Text className="text-sm font-medium text-red-500 dark:text-red-500 mb-2">
+                <Text className="text-sm font-medium text-app-danger dark:text-app-dark-danger mb-2">
                   (
                   {includeTravelAllowance
                     ? "Include travel expenses"
@@ -534,9 +539,9 @@ export default function Explore() {
               </Text>
               <TextInput
                 placeholder="Ex. 9500"
-                placeholderTextColor="gray"
+                placeholderTextColor={palette.mutedText}
                 keyboardType="numeric"
-                className="bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-black dark:text-white border border-gray-200 dark:border-gray-800"
+                className="bg-app-surface-alt dark:bg-app-dark-surface-alt rounded-xl p-4 text-app-text dark:text-app-dark-text border border-app-border dark:border-app-dark-border"
                 value={customBudget}
                 onChangeText={(text) => {
                   setCustomBudget(text);
@@ -548,7 +553,7 @@ export default function Explore() {
 
           {/* Travel Allowance */}
           <View className="mb-8">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               Include travel allowance?
             </Text>
             <View className="flex-row justify-between">
@@ -556,15 +561,15 @@ export default function Explore() {
                 onPress={() => setIncludeTravelAllowance(true)}
                 className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
                   includeTravelAllowance
-                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                    : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                 }`}
               >
                 <Text
                   className={`font-bold text-lg ${
                     includeTravelAllowance
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-black dark:text-white"
+                      ? "text-app-primary dark:text-app-dark-primary"
+                      : "text-app-text dark:text-app-dark-text"
                   }`}
                 >
                   Yes
@@ -575,29 +580,29 @@ export default function Explore() {
                 onPress={() => setIncludeTravelAllowance(false)}
                 className={`w-[48%] p-4 rounded-2xl border items-center justify-center ${
                   !includeTravelAllowance
-                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                    : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                 }`}
               >
                 <Text
                   className={`font-bold text-lg ${
                     !includeTravelAllowance
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-black dark:text-white"
+                      ? "text-app-primary dark:text-app-dark-primary"
+                      : "text-app-text dark:text-app-dark-text"
                   }`}
                 >
                   No
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <Text className="text-xs text-app-muted-text dark:text-app-dark-muted-text mt-2">
               Turn on if you want travel/transport included.
             </Text>
           </View>
 
           {/* Travelers */}
           <View className="mb-24">
-            <Text className="text-xl font-bold text-black dark:text-white mb-3">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-3">
               Who are you traveling with?
             </Text>
             <View className="flex-row flex-wrap justify-between">
@@ -607,8 +612,8 @@ export default function Explore() {
                   onPress={() => setSelectedTraveler(option)}
                   className={`w-[48%] p-4 mb-4 rounded-2xl border items-center justify-center ${
                     selectedTraveler?.people === option.people
-                      ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                      : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                      ? "border-app-primary dark:border-app-dark-primary bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                      : "border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                   }`}
                 >
                   <View className="mb-2">
@@ -617,8 +622,8 @@ export default function Explore() {
                   <Text
                     className={`font-bold text-lg ${
                       selectedTraveler?.people === option.people
-                        ? "text-orange-600 dark:text-orange-400"
-                        : "text-black dark:text-white"
+                        ? "text-app-primary dark:text-app-dark-primary"
+                        : "text-app-text dark:text-app-dark-text"
                     }`}
                   >
                     {option.people}
@@ -632,19 +637,23 @@ export default function Explore() {
             <TouchableOpacity
               onPress={onGenerateTrip}
               disabled={loading}
-              className={`bg-orange-500 rounded-full py-4 items-center shadow-lg ${loading ? "opacity-80" : ""}`}
+              className={`bg-app-primary dark:bg-app-dark-primary rounded-full py-4 items-center shadow-lg ${loading ? "opacity-80" : ""}`}
             >
               <View className="flex-row items-center justify-center">
                 <Text
-                  className="text-white text-xl font-bold mr-1"
+                  className="text-app-on-primary dark:text-app-dark-on-primary text-xl font-bold mr-1"
                   numberOfLines={1}
                 >
                   {loading ? "Generating Trip..." : "Generate Trip"}
                 </Text>
                 {loading ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
+                  <ActivityIndicator size="small" color={palette.onPrimary} />
                 ) : (
-                  <Ionicons name="sparkles" size={20} color="white" />
+                  <Ionicons
+                    name="sparkles"
+                    size={20}
+                    color={palette.onPrimary}
+                  />
                 )}
               </View>
             </TouchableOpacity>

@@ -7,7 +7,7 @@ export default function Index() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-white h-full">
+    <View className="flex-1 bg-app-bg dark:bg-app-dark-bg h-full">
       <Image
         source={require("../assets/images/welcome.png")}
         className="w-full h-full absolute"
@@ -23,7 +23,7 @@ export default function Index() {
           Trip Genius
         </Text>
         <Text
-          className="text-gray-200 text-base text-center mb-8"
+          className="text-white/90 text-base text-center mb-8"
           numberOfLines={1}
         >
           Discover your next adventure with AI
@@ -31,9 +31,12 @@ export default function Index() {
 
         <TouchableOpacity
           onPress={() => router.push("/auth")}
-          className="flex bg-orange-500 w-full py-4 rounded-full flex-row justify-center items-center gap-3"
+          className="flex bg-app-primary dark:bg-app-dark-primary w-full py-4 rounded-full flex-row justify-center items-center gap-3"
         >
-          <Text className="text-white text-2xl font-bold" numberOfLines={1}>
+          <Text
+            className="text-app-on-primary dark:text-app-dark-on-primary text-2xl font-bold"
+            numberOfLines={1}
+          >
             Get Started
           </Text>
           <Ionicons name="arrow-forward-outline" size={24} color="white" />

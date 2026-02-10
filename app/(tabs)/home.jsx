@@ -13,6 +13,7 @@ import { db } from "../../Firebase/FirebaseConfig";
 import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
 import Skeleton from "../../components/Skeleton";
+import themeColors from "../../lib/themeColors.json";
 
 const popularDestinations = [
   {
@@ -54,7 +55,9 @@ const popularDestinations = [
 
 const Home = () => {
   const { user, logout } = useAuth();
-  const { theme, updateTheme } = useTheme();
+  const { colorScheme, updateTheme } = useTheme();
+  const isDark = colorScheme === "dark";
+  const palette = isDark ? themeColors.dark : themeColors.light;
   const [userTrips, setUserTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
@@ -112,7 +115,7 @@ const Home = () => {
   );
 
   const toggleTheme = () => {
-    updateTheme(theme === "dark" ? "light" : "dark");
+    updateTheme(isDark ? "light" : "dark");
   };
 
   const handleLogout = () => {
@@ -161,13 +164,8 @@ const Home = () => {
 
   return (
     <PageTransition>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: theme === "dark" ? "#000" : "#fff" }}
-      >
-        <StatusBar
-          style={theme === "dark" ? "light" : "dark"}
-          animated={true}
-        />
+      <SafeAreaView style={{ flex: 1, backgroundColor: palette.bg }}>
+        <StatusBar style={isDark ? "light" : "dark"} animated={true} />
         <ScrollView
           className="flex-1 px-5 pt-7"
           showsVerticalScrollIndicator={false}
@@ -178,7 +176,7 @@ const Home = () => {
           {/* Header */}
           <View className="flex-row justify-between items-center mb-6">
             <TouchableOpacity onPress={handleLogout}>
-              <View className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+              <View className="w-10 h-10 rounded-full overflow-hidden bg-app-surface-alt dark:bg-app-dark-surface-alt">
                 <Image
                   source={{
                     uri:
@@ -194,16 +192,16 @@ const Home = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={toggleTheme}>
               <Ionicons
-                name={theme === "dark" ? "sunny" : "moon"}
+                name={isDark ? "sunny" : "moon"}
                 size={24}
-                color={theme === "dark" ? "white" : "black"}
+                color={palette.text}
               />
             </TouchableOpacity>
           </View>
 
           {/* Greeting */}
           <Text
-            className="text-3xl font-bold text-black dark:text-white mb-6 leading-tight"
+            className="text-3xl font-bold text-app-text dark:text-app-dark-text mb-6 leading-tight"
             numberOfLines={1}
           >
             Hello, {user?.displayName?.split(" ")[0] || "Traveler"}! Where to
@@ -212,16 +210,19 @@ const Home = () => {
 
           {/* Create New Trip Button */}
           <TouchableOpacity
-            className="bg-orange-500 rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm"
+            className="bg-app-primary dark:bg-app-dark-primary rounded-full py-4 px-6 flex-row items-center justify-center mb-8 shadow-sm"
             onPress={handleNavigateToExplore}
           >
             <Ionicons
               name="add"
               size={24}
-              color="white"
+              color={palette.onPrimary}
               style={{ marginRight: 8 }}
             />
-            <Text className="text-white text-xl font-bold" numberOfLines={1}>
+            <Text
+              className="text-app-on-primary dark:text-app-dark-on-primary text-xl font-bold"
+              numberOfLines={1}
+            >
               Create New Trip
             </Text>
           </TouchableOpacity>
@@ -233,16 +234,12 @@ const Home = () => {
               onPress={handleNavigateToMyTrip}
             >
               <Text
-                className="text-xl font-bold text-black dark:text-white"
+                className="text-xl font-bold text-app-text dark:text-app-dark-text"
                 numberOfLines={1}
               >
                 My Trips
               </Text>
-              <Ionicons
-                name="arrow-forward"
-                size={24}
-                color={theme === "dark" ? "white" : "black"}
-              />
+              <Ionicons name="arrow-forward" size={24} color={palette.text} />
             </TouchableOpacity>
 
             {loading ? (
@@ -270,8 +267,8 @@ const Home = () => {
                 ))}
               </ScrollView>
             ) : userTrips.length === 0 ? (
-              <View className="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 items-center">
-                <Text className="text-gray-500 dark:text-gray-400 text-center">
+              <View className="bg-app-surface dark:bg-app-dark-surface p-6 rounded-2xl border border-app-border dark:border-app-dark-border items-center">
+                <Text className="text-app-muted-text dark:text-app-dark-muted-text text-center">
                   No trips planned yet
                 </Text>
               </View>
@@ -293,12 +290,12 @@ const Home = () => {
                       transition={500}
                     />
                     <Text
-                      className="text-lg font-bold text-black dark:text-white"
+                      className="text-lg font-bold text-app-text dark:text-app-dark-text"
                       numberOfLines={1}
                     >
                       {trip.userSelection?.Location || "Trip Destination"}
                     </Text>
-                    <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                    <Text className="text-app-muted-text dark:text-app-dark-muted-text text-sm">
                       {trip.userSelection?.TotalDays
                         ? ` • ${trip.userSelection.TotalDays} Days`
                         : "Date TBD"}
@@ -317,7 +314,7 @@ const Home = () => {
 
           {/* Popular Destinations Section */}
           <View className="mb-24">
-            <Text className="text-xl font-bold text-black dark:text-white mb-4">
+            <Text className="text-xl font-bold text-app-text dark:text-app-dark-text mb-4">
               Popular Destinations
             </Text>
             <View className="flex-row flex-wrap justify-between">

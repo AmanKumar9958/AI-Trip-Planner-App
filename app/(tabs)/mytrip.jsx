@@ -1,22 +1,21 @@
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  where,
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    query,
+    where,
 } from "firebase/firestore";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Share,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Share,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +27,7 @@ import CustomAlert from "../../components/CustomAlert";
 import PageTransition from "../../components/PageTransition";
 import Skeleton from "../../components/Skeleton";
 import TripDetailsModal from "../../components/TripDetailsModal";
+import themeColors from "../../lib/themeColors.json";
 
 const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
   const swipeableRef = useRef(null);
@@ -65,7 +65,7 @@ const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
               swipeableRef.current?.close();
               shareTrip(item);
             }}
-            className="ml-2 px-4 py-3 bg-blue-500 rounded-xl items-center justify-center"
+            className="ml-2 px-4 py-3 bg-app-secondary dark:bg-app-dark-secondary rounded-xl items-center justify-center"
           >
             <View className="flex-row items-center">
               <Ionicons name="share-social" size={20} color="white" />
@@ -82,7 +82,7 @@ const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
               swipeableRef.current?.close();
               confirmDelete(item.id, item.userSelection?.Location);
             }}
-            className="mr-2 px-4 py-3 bg-red-600 rounded-xl items-center justify-center"
+            className="mr-2 px-4 py-3 bg-app-danger dark:bg-app-dark-danger rounded-xl items-center justify-center"
           >
             <View className="flex-row items-center">
               <Ionicons name="trash" size={20} color="white" />
@@ -94,12 +94,12 @@ const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
     >
       <TouchableOpacity
         onPress={onPress}
-        className="mb-6 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800"
+        className="mb-6 bg-app-surface dark:bg-app-dark-surface rounded-2xl p-4 border border-app-border dark:border-app-dark-border"
       >
-        <Text className="text-lg font-bold text-black dark:text-white">
+        <Text className="text-lg font-bold text-app-text dark:text-app-dark-text">
           {item.userSelection?.Location || "Trip Destination"}
         </Text>
-        <Text className="text-gray-500 dark:text-gray-400 text-sm">
+        <Text className="text-app-muted-text dark:text-app-dark-muted-text text-sm">
           {item.userSelection?.TotalDays
             ? `${item.userSelection.TotalDays} Days`
             : ""}
@@ -117,7 +117,9 @@ const TripItem = ({ item, shareTrip, confirmDelete, onPress }) => {
 
 export default function MyTrip() {
   const { user } = useAuth();
-  const { theme, updateTheme } = useTheme();
+  const { colorScheme, updateTheme } = useTheme();
+  const isDark = colorScheme === "dark";
+  const palette = isDark ? themeColors.dark : themeColors.light;
   const { setIsTabBarVisible } = useTabBar();
   const lastContentOffset = useRef(0);
 
@@ -186,7 +188,7 @@ export default function MyTrip() {
   );
 
   const toggleTheme = () => {
-    updateTheme(theme === "dark" ? "light" : "dark");
+    updateTheme(isDark ? "light" : "dark");
   };
 
   const deleteTrip = async (tripId) => {
@@ -250,28 +252,22 @@ Open the app to view full itinerary.`,
 
   return (
     <PageTransition>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: theme === "dark" ? "#000" : "#fff" }}
-      >
+      <SafeAreaView style={{ flex: 1, backgroundColor: palette.bg }}>
         <View className="px-5 pt-6 flex-1">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-3xl font-bold text-black dark:text-white">
+            <Text className="text-3xl font-bold text-app-text dark:text-app-dark-text">
               My Trips
             </Text>
             <View className="flex-row items-center gap-8">
               <TouchableOpacity onPress={toggleTheme}>
                 <Ionicons
-                  name={theme === "dark" ? "sunny" : "moon"}
+                  name={isDark ? "sunny" : "moon"}
                   size={24}
-                  color={theme === "dark" ? "white" : "black"}
+                  color={palette.text}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={GetMyTrips}>
-                <Ionicons
-                  name="refresh"
-                  size={24}
-                  color={theme === "dark" ? "white" : "black"}
-                />
+                <Ionicons name="refresh" size={24} color={palette.text} />
               </TouchableOpacity>
             </View>
           </View>
@@ -281,7 +277,7 @@ Open the app to view full itinerary.`,
               {[1, 2, 3, 4, 5].map((item) => (
                 <View
                   key={item}
-                  className="mb-6 rounded-2xl p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900"
+                  className="mb-6 rounded-2xl p-4 border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface"
                 >
                   <Skeleton
                     width="70%"
@@ -295,7 +291,7 @@ Open the app to view full itinerary.`,
             </View>
           ) : userTrips.length === 0 ? (
             <View className="flex-1 justify-center items-center">
-              <Text className="text-xl font-bold text-gray-400 dark:text-gray-500">
+              <Text className="text-xl font-bold text-app-muted-text dark:text-app-dark-muted-text">
                 No trips planned yet
               </Text>
             </View>
