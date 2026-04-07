@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>837231796444-6r0i1epp7p6k4tg24dg5dua43orolfrd.apps.googleusercontent.com</string>
+	<string>837231796444-sbom6dnfq73ee1h3p2i5bc9ds9d9cstt.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.837231796444-6r0i1epp7p6k4tg24dg5dua43orolfrd</string>
+	<string>com.googleusercontent.apps.837231796444-sbom6dnfq73ee1h3p2i5bc9ds9d9cstt</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>837231796444-0ipeg1g3ttuvf2njdujacbr0a0eosu6r.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC2_iN1T88XFrALJykpwnYouES7W948NXo</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.codewithaman.aitripplannerapp</string>
+	<string>com.solostackdev.tripgenius</string>
 	<key>PROJECT_ID</key>
 	<string>ai-trip-genius</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:837231796444:ios:c8b87b8d4f3ad130ca1419</string>
+	<string>1:837231796444:ios:149c5b8da0acb9c8ca1419</string>
 </dict>
 </plist>
