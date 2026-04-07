@@ -4,8 +4,5 @@
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
   },
-  "cSpell.words": [
-    "mytrip",
-    "Swipeable"
-  ]
+  "cSpell.words": ["mytrip", "solostackdev", "Swipeable"]
 }

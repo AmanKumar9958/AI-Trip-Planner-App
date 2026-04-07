@@ -3,7 +3,7 @@
     "name": "Trip Genius",
     "slug": "AI-Trip-Planner-App",
     "owner": "codewithaman",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Trip_Genius_Icon.png",
     "splash": {
@@ -16,7 +16,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.codewithamandev.tripgenius",
+      "bundleIdentifier": "com.solostackdev.tripgenius",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -27,7 +27,7 @@
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/Trip_Genius_Icon.png"
       },
-      "package": "com.codewithamandev.tripgenius",
+      "package": "com.solostackdev.tripgenius",
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
