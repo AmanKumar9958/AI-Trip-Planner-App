@@ -36,8 +36,8 @@ export default function CustomSplashScreen({ onFinish }) {
     >
       <Video
         source={require("../assets/videos/Trip_Genius_Loading.mp4")}
-        style={{ width: "100%", height: "60%" }}
-        resizeMode={ResizeMode.CONTAIN}
+        style={{ width: "100%", height: "100%" }}
+        resizeMode={ResizeMode.COVER}
         shouldPlay={hasMinTimeElapsed}
         rate={2.5}
         isLooping={false}

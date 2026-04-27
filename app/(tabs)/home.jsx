@@ -20,35 +20,56 @@ const popularDestinations = [
     id: 1,
     name: "Santorini, Greece",
     image: {
-      uri: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      uri: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=800&auto=format&fit=crop",
     },
   },
   {
     id: 2,
     name: "Bali, Indonesia",
     image: {
-      uri: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1000&auto=format&fit=crop",
+      uri: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800&auto=format&fit=crop",
     },
   },
   {
     id: 3,
     name: "Amalfi Coast, Italy",
     image: {
-      uri: "https://images.unsplash.com/photo-1729854776205-38b5fc6cd0b9?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      uri: "https://images.unsplash.com/photo-1612718244440-49d8fbbb7ee7?q=80&w=800&auto=format&fit=crop",
     },
   },
   {
     id: 4,
     name: "Reykjavík, Iceland",
     image: {
-      uri: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1000&auto=format&fit=crop",
+      uri: "https://images.unsplash.com/photo-1520769669658-f07657f5a307?q=80&w=800&auto=format&fit=crop",
     },
   },
   {
     id: 5,
     name: "Paris, France",
     image: {
-      uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop",
+      uri: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800&auto=format&fit=crop",
+    },
+  },
+  {
+    id: 6,
+    name: "Tokyo, Japan",
+    image: {
+      uri: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop",
+    },
+  },
+  {
+    id: 7,
+    name: "Maldives",
+    image: {
+      uri: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=800&auto=format&fit=crop",
+    },
+  },
+  {
+    id: 8,
+    name: "Machu Picchu, Peru",
+    image: {
+      uri: "https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=800&auto=format&fit=crop",
     },
   },
 ];
