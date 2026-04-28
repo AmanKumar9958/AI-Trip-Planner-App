@@ -1,36 +1,55 @@
-import { useEffect } from "react";
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withTiming,
-} from "react-native-reanimated";
+import { useEffect, useRef } from "react";
+import { Animated, StyleSheet } from "react-native";
+import { useTheme } from "../Context/ThemeContext";
+import themeColors from "../lib/themeColors.json";
 
-const Skeleton = ({ width, height, style, borderRadius = 12 }) => {
-  const opacity = useSharedValue(0.3);
+export default function Skeleton({ width, height, borderRadius = 14, style }) {
+  const { colorScheme } = useTheme();
+  const palette = colorScheme === "dark" ? themeColors.dark : themeColors.light;
+  const shimmer = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.7, { duration: 1000 }),
-        withTiming(0.3, { duration: 1000 }),
-      ),
-      -1,
-      true,
-    );
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmer, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+    return () => shimmer.stopAnimation();
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  const opacity = shimmer.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.45, 1],
+  });
 
   return (
     <Animated.View
-      style={[{ width, height, borderRadius }, style, animatedStyle]}
-      className="bg-app-skeleton dark:bg-app-dark-skeleton"
+      style={[
+        styles.base,
+        {
+          width,
+          height,
+          borderRadius,
+          backgroundColor: palette.skeleton,
+          opacity,
+        },
+        style,
+      ]}
     />
   );
-};
+}
 
-export default Skeleton;
+const styles = StyleSheet.create({
+  base: {
+    overflow: "hidden",
+  },
+});

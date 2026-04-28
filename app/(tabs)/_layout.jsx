@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Animated } from "react-native";
+import { Animated, StyleSheet } from "react-native";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { TabBarProvider, useTabBar } from "../../Context/TabBarContext";
 import { useTheme } from "../../Context/ThemeContext";
@@ -14,7 +14,7 @@ const CustomTabBar = (props) => {
 
   useEffect(() => {
     Animated.timing(translateY, {
-      toValue: isTabBarVisible ? 0 : 100,
+      toValue: isTabBarVisible ? 0 : 120,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -22,15 +22,10 @@ const CustomTabBar = (props) => {
 
   return (
     <Animated.View
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        transform: [{ translateY }],
-        zIndex: 100,
-        elevation: 5,
-      }}
+      style={[
+        styles.tabBarWrapper,
+        { transform: [{ translateY }] },
+      ]}
     >
       <BottomTabBar {...props} />
     </Animated.View>
@@ -39,21 +34,44 @@ const CustomTabBar = (props) => {
 
 function TabLayoutContent() {
   const { colorScheme } = useTheme();
-  const palette = colorScheme === "dark" ? themeColors.dark : themeColors.light;
+  const isDark = colorScheme === "dark";
+  const palette = isDark ? themeColors.dark : themeColors.light;
 
   return (
     <Tabs
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: palette.primary,
+        tabBarActiveTintColor: isDark ? "#FF8E8E" : "#FF6B6B",
         tabBarInactiveTintColor: palette.tabInactive,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "700",
+          marginBottom: 4,
+        },
         tabBarStyle: {
-          backgroundColor: palette.surface,
-          borderTopColor: palette.border,
+          backgroundColor: isDark ? "#251C50" : "#FFFFFF",
+          borderTopWidth: 0,
+          borderRadius: 28,
+          borderWidth: 2.5,
+          borderColor: isDark ? "#3D2E7A" : "#FFD4B8",
+          marginHorizontal: 16,
+          marginBottom: 20,
+          height: 68,
+          paddingBottom: 6,
+          paddingTop: 6,
+          shadowColor: "#2D1B69",
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: 0.18,
+          shadowRadius: 16,
+          elevation: 12,
+        },
+        tabBarItemStyle: {
+          borderRadius: 16,
+          marginHorizontal: 4,
         },
         sceneStyle: {
-          backgroundColor: palette.bg,
+          backgroundColor: isDark ? "#1A1035" : "#FFF9F0",
         },
       }}
     >
@@ -69,7 +87,7 @@ function TabLayoutContent() {
       <Tabs.Screen
         name="generate"
         options={{
-          tabBarLabel: "Generate",
+          tabBarLabel: "Explore",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="map" size={size} color={color} />
           ),
@@ -87,6 +105,17 @@ function TabLayoutContent() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarWrapper: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    elevation: 5,
+  },
+});
 
 export default function TabLayout() {
   return (

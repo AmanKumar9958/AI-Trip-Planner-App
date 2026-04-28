@@ -6,9 +6,10 @@ const { width, height } = Dimensions.get("window");
 
 const Auth = () => {
   const { promptAsync } = useAuth();
+
   return (
     <View style={styles.container}>
-      {/* Full-screen travel background image */}
+      {/* Full-screen travel background */}
       <Image
         source={{
           uri: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop",
@@ -18,12 +19,25 @@ const Auth = () => {
         transition={600}
       />
 
-      {/* Gradient overlay — heavier at bottom */}
-      <View style={styles.gradientOverlay} />
+      {/* Soft overlay */}
+      <View style={styles.overlay} />
 
-      {/* Bottom Sheet */}
-      <View style={styles.bottomSheet}>
-        <Text style={styles.heading}>Your journey{"\n"}starts here</Text>
+      {/* Floating decorations */}
+      <Text style={[styles.floatEmoji, { top: height * 0.10, left: 32 }]}>🏖️</Text>
+      <Text style={[styles.floatEmoji, { top: height * 0.07, right: 38 }]}>🌴</Text>
+      <Text style={[styles.floatEmoji, { top: height * 0.20, right: 26 }]}>⭐</Text>
+
+      {/* Cartoon bottom sheet */}
+      <View style={styles.sheet}>
+        {/* Drag handle */}
+        <View style={styles.handle} />
+
+        {/* Suitcase mascot */}
+        <View style={styles.mascotWrap}>
+          <Text style={styles.mascot}>🧳</Text>
+        </View>
+
+        <Text style={styles.heading}>Your journey{"\n"}starts here! 🗺️</Text>
 
         {/* Google Sign-In Button */}
         <TouchableOpacity
@@ -39,7 +53,7 @@ const Auth = () => {
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </TouchableOpacity>
 
-        {/* Terms and Privacy */}
+        {/* Terms */}
         <Text style={styles.termsText}>
           By continuing, you agree to our{" "}
           <Text style={styles.termsLink}>Terms of Service</Text>
@@ -54,53 +68,92 @@ const Auth = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: width,
-    height: height,
-    backgroundColor: "#0d1117",
+    width,
+    height,
+    backgroundColor: "#1A1035",
   },
-  gradientOverlay: {
+  overlay: {
     ...StyleSheet.absoluteFillObject,
-    // Simulate a gradient: transparent on top, dark on bottom
-    backgroundColor: "rgba(10, 14, 30, 0.45)",
+    backgroundColor: "rgba(26,16,53,0.30)",
   },
-  bottomSheet: {
+  floatEmoji: {
+    position: "absolute",
+    fontSize: 34,
+    zIndex: 2,
+  },
+  sheet: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 28,
-    paddingTop: 36,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 44,
+    borderTopRightRadius: 44,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderRightWidth: 3,
+    borderColor: "#FFD4B8",
     paddingBottom: 52,
-    backgroundColor: "rgba(13, 17, 35, 0.88)",
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.10)",
+    paddingHorizontal: 28,
+    paddingTop: 12,
     alignItems: "center",
+    shadowColor: "#2D1B69",
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    elevation: 18,
+  },
+  handle: {
+    width: 48,
+    height: 5,
+    backgroundColor: "#FFD4B8",
+    borderRadius: 100,
+    marginBottom: 16,
+  },
+  mascotWrap: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#FFF3E0",
+    borderWidth: 3,
+    borderColor: "#FFD4B8",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+    shadowColor: "#FF6B6B",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  mascot: {
+    fontSize: 36,
   },
   heading: {
-    color: "#ffffff",
-    fontSize: 34,
-    fontWeight: "800",
+    color: "#2D1B69",
+    fontSize: 30,
+    fontWeight: "900",
     textAlign: "center",
-    marginBottom: 32,
-    lineHeight: 42,
+    marginBottom: 28,
+    lineHeight: 40,
     letterSpacing: 0.3,
   },
   googleButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FFF9F0",
     width: "100%",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 22,
     borderRadius: 100,
+    borderWidth: 2.5,
+    borderColor: "#FFD4B8",
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
+    shadowColor: "#2D1B69",
+    shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    elevation: 5,
   },
   googleIcon: {
     width: 26,
@@ -108,20 +161,21 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   googleButtonText: {
-    color: "#1a1a2e",
+    color: "#2D1B69",
     fontSize: 17,
-    fontWeight: "600",
+    fontWeight: "700",
     letterSpacing: 0.2,
   },
   termsText: {
-    color: "rgba(255,255,255,0.55)",
+    color: "#9B8BB4",
     fontSize: 12,
     textAlign: "center",
     lineHeight: 18,
+    fontWeight: "500",
   },
   termsLink: {
-    color: "#4fc3f7",
-    fontWeight: "600",
+    color: "#FF6B6B",
+    fontWeight: "700",
   },
 });
 

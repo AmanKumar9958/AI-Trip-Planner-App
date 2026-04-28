@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../Context/ThemeContext";
 import themeColors from "../lib/themeColors.json";
 
@@ -12,11 +12,19 @@ const CustomAlert = ({
   cancelText = "Cancel",
   confirmText = "Confirm",
   icon = "alert-circle",
-  confirmButtonStyle = "destructive", // 'default' | 'destructive'
+  confirmButtonStyle = "destructive",
 }) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
   const palette = isDark ? themeColors.dark : themeColors.light;
+
+  const cardBg = isDark ? "#251C50" : "#FFFFFF";
+  const cardBorder = isDark ? "#3D2E7A" : "#FFD4B8";
+  const cancelBg = isDark ? "#2E2460" : "#FFF3E0";
+  const cancelBorder = isDark ? "#3D2E7A" : "#FFD4B8";
+  const cancelText_ = isDark ? "#F0EAFF" : "#2D1B69";
+  const dangerColor = isDark ? "#FF6B79" : "#FF4757";
+  const primaryColor = isDark ? "#FF8E8E" : "#FF6B6B";
 
   return (
     <Modal
@@ -25,29 +33,32 @@ const CustomAlert = ({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View className="flex-1 justify-center items-center bg-black/50 px-6">
-        <View className="w-full max-w-sm rounded-[32px] p-6 bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border shadow-2xl">
-          {/* Icon */}
-          <View className="w-14 h-14 rounded-full bg-app-surface-alt dark:bg-app-dark-surface-alt items-center justify-center mb-4 mx-auto">
-            <Ionicons name={icon} size={28} color={palette.primary} />
+      <View style={styles.backdrop}>
+        <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+          {/* Cartoon icon circle */}
+          <View style={[styles.iconCircle, { backgroundColor: "#FFF3E0", borderColor: "#FFD4B8" }]}>
+            <Ionicons name={icon} size={30} color={primaryColor} />
           </View>
 
-          {/* Title & Message */}
-          <Text className="text-xl font-bold text-center mb-2 text-app-text dark:text-app-dark-text">
+          {/* Title */}
+          <Text style={[styles.title, { color: isDark ? "#F0EAFF" : "#2D1B69" }]}>
             {title}
           </Text>
-          <Text className="text-base text-center mb-8 text-app-muted-text dark:text-app-dark-muted-text leading-6">
+
+          {/* Message */}
+          <Text style={[styles.message, { color: isDark ? "#9B8BB4" : "#9B8BB4" }]}>
             {message}
           </Text>
 
           {/* Buttons */}
-          <View className="flex-row gap-3">
+          <View style={styles.buttonRow}>
             {cancelText ? (
               <TouchableOpacity
                 onPress={onCancel}
-                className="flex-1 py-3.5 rounded-2xl border border-app-border dark:border-app-dark-border bg-app-surface-alt dark:bg-app-dark-surface-alt"
+                style={[styles.btn, styles.cancelBtn, { backgroundColor: cancelBg, borderColor: cancelBorder }]}
+                activeOpacity={0.85}
               >
-                <Text className="text-center font-semibold text-app-text dark:text-app-dark-text">
+                <Text style={[styles.cancelBtnText, { color: cancelText_ }]}>
                   {cancelText}
                 </Text>
               </TouchableOpacity>
@@ -56,21 +67,15 @@ const CustomAlert = ({
             {confirmText ? (
               <TouchableOpacity
                 onPress={onConfirm}
-                className={`flex-1 py-3.5 rounded-2xl ${
+                style={[
+                  styles.btn,
                   confirmButtonStyle === "destructive"
-                    ? "bg-app-danger dark:bg-app-dark-danger"
-                    : "bg-app-primary dark:bg-app-dark-primary"
-                }`}
+                    ? [styles.dangerBtn, { backgroundColor: dangerColor, borderColor: "#FF2030" }]
+                    : [styles.primaryBtn, { backgroundColor: primaryColor, borderColor: "#FF4040" }],
+                ]}
+                activeOpacity={0.85}
               >
-                <Text
-                  className={`text-center font-bold ${
-                    confirmButtonStyle === "destructive"
-                      ? "text-app-on-danger dark:text-app-dark-on-danger"
-                      : "text-app-on-primary dark:text-app-dark-on-primary"
-                  }`}
-                >
-                  {confirmText}
-                </Text>
+                <Text style={styles.confirmBtnText}>{confirmText}</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -79,5 +84,93 @@ const CustomAlert = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(45,27,105,0.55)",
+    paddingHorizontal: 28,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 360,
+    borderRadius: 32,
+    borderWidth: 2.5,
+    padding: 28,
+    alignItems: "center",
+    shadowColor: "#2D1B69",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 14,
+  },
+  iconCircle: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    borderWidth: 2.5,
+    shadowColor: "#FF6B6B",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 10,
+    letterSpacing: 0.2,
+  },
+  message: {
+    fontSize: 15,
+    textAlign: "center",
+    marginBottom: 28,
+    lineHeight: 22,
+    fontWeight: "500",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  btn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 100,
+    borderWidth: 2.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelBtn: {},
+  cancelBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  primaryBtn: {
+    shadowColor: "#FF6B6B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  dangerBtn: {
+    shadowColor: "#FF4757",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  confirmBtnText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+});
 
 export default CustomAlert;
